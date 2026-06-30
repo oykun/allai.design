@@ -1,0 +1,100 @@
+---
+import { getPublishedItems, getPlatforms, getAllTags } from '../lib/notion.js';
+import Card from '../components/Card.astro';
+import '../styles/global.css';
+
+const items = await getPublishedItems();
+const platforms = getPlatforms(items);
+const tags = getAllTags(items);
+---
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>allai.design — AI design, curated</title>
+  <meta name="description" content="Curated AI product UI, design patterns, and tools for designers building with AI." />
+  <meta property="og:title" content="allai.design" />
+  <meta property="og:description" content="Curated AI product UI, design patterns, and tools for designers building with AI." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://allai.design" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="/" class="site-logo">allai<span>.design</span></a>
+      <span class="header-meta">AI design, curated</span>
+    </div>
+  </header>
+
+  <div class="filter-bar" id="filters">
+    <span class="filter-label">Filter</span>
+    <button class="filter-btn active" data-filter="all">All</button>
+
+    {platforms.map(p => (
+      <button class="filter-btn" data-filter={`platform:${p}`}>{p}</button>
+    ))}
+
+    {tags.map(t => (
+      <button class="filter-btn" data-filter={`tag:${t}`}>{t}</button>
+    ))}
+  </div>
+
+  <div class="item-count" id="count">
+    {items.length} items
+  </div>
+
+  <main class="grid-container">
+    {items.length > 0 ? (
+      <div class="grid" id="grid">
+        {items.map(item => (
+          <Card item={item} />
+        ))}
+      </div>
+    ) : (
+      <div class="empty-state">Nothing published yet.</div>
+    )}
+  </main>
+
+</body>
+</html>
+
+<script>
+  const filterBtns = document.querySelectorAll('.filter-btn');
+  const cards = document.querySelectorAll('.card');
+  const count = document.getElementById('count');
+
+  function applyFilter(filter) {
+    let visible = 0;
+
+    cards.forEach(card => {
+      let show = true;
+
+      if (filter !== 'all') {
+        const [type, value] = filter.split(':');
+        if (type === 'platform') {
+          show = card.dataset.platform === value;
+        } else if (type === 'tag') {
+          const cardTags = (card.dataset.tags || '').split(',');
+          show = cardTags.includes(value);
+        }
+      }
+
+      card.style.display = show ? '' : 'none';
+      if (show) visible++;
+    });
+
+    count.textContent = `${visible} item${visible !== 1 ? 's' : ''}`;
+  }
+
+  filterBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      filterBtns.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      applyFilter(btn.dataset.filter);
+    });
+  });
+</script>

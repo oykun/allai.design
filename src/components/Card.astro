@@ -1,0 +1,52 @@
+---
+const { item } = Astro.props;
+const { title, platform, tags, sourceUrl, imageUrl, curationNote } = item;
+
+function getSourceLabel(url) {
+  if (!url) return '';
+  try {
+    const host = new URL(url).hostname.replace('www.', '');
+    return host;
+  } catch {
+    return url;
+  }
+}
+---
+
+<article
+  class="card"
+  data-platform={platform}
+  data-tags={tags.join(',')}
+>
+  <a href={sourceUrl} target="_blank" rel="noopener noreferrer" class="card-image">
+    {imageUrl
+      ? <img src={imageUrl} alt={title} loading="lazy" />
+      : <div class="card-image-placeholder">no image</div>
+    }
+  </a>
+
+  <div class="card-body">
+    <div class="card-title">{title}</div>
+
+    {curationNote && (
+      <p class="card-note">{curationNote}</p>
+    )}
+
+    <div class="card-footer">
+      <div class="card-tags">
+        {tags.map(tag => (
+          <span class="tag">{tag}</span>
+        ))}
+      </div>
+      {platform && (
+        <span class="platform-tag">{platform}</span>
+      )}
+    </div>
+
+    {sourceUrl && (
+      <a href={sourceUrl} target="_blank" rel="noopener noreferrer" class="card-source">
+        ↗ {getSourceLabel(sourceUrl)}
+      </a>
+    )}
+  </div>
+</article>

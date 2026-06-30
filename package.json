@@ -1,0 +1,14 @@
+{
+  "name": "allai-design",
+  "type": "module",
+  "version": "0.1.0",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview"
+  },
+  "dependencies": {
+    "@notionhq/client": "^2.2.15",
+    "astro": "^4.16.0"
+  }
+}
