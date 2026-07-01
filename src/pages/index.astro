@@ -1,11 +1,14 @@
 ---
-import { getPublishedItems, getPlatforms, getAllTags } from '../lib/notion.js';
+import { getPublishedItems, getUnique, getUniqueMulti } from '../lib/notion.js';
 import Card from '../components/Card.astro';
 import '../styles/global.css';
 
 const items = await getPublishedItems();
-const platforms = getPlatforms(items);
-const tags = getAllTags(items);
+const sources = getUnique(items, 'source');
+const types = getUnique(items, 'type');
+const categories = getUnique(items, 'category');
+const styles = getUniqueMulti(items, 'style');
+const tags = getUniqueMulti(items, 'tags');
 ---
 
 <!DOCTYPE html>
@@ -23,35 +26,81 @@ const tags = getAllTags(items);
 </head>
 <body>
 
-  <header class="site-header">
-    <div class="header-inner">
-      <a href="/" class="site-logo">allai<span>.design</span></a>
-      <span class="header-meta">AI design, curated</span>
+  <aside class="side-panel">
+    <div class="side-panel-inner">
+
+      <div class="side-section">
+        <a href="/" class="site-logo">allai<span>.design</span></a>
+        <nav class="side-nav">
+          <a href="/" class="nav-link nav-link--active">Feed</a>
+          <a href="/info" class="nav-link">Info</a>
+        </nav>
+      </div>
+
+      <div class="side-section">
+        <div class="filter-group-label">Source</div>
+        <ul class="filter-list">
+          <li><button class="filter-opt active" data-group="source" data-value="all"><span class="filter-dot"></span>All</button></li>
+          {sources.map(s => (
+            <li><button class="filter-opt" data-group="source" data-value={s}><span class="filter-dot"></span>{s}</button></li>
+          ))}
+        </ul>
+      </div>
+
+      <div class="side-section">
+        <div class="filter-group-label">Type</div>
+        <ul class="filter-list">
+          <li><button class="filter-opt active" data-group="type" data-value="all"><span class="filter-dot"></span>All</button></li>
+          {types.map(t => (
+            <li><button class="filter-opt" data-group="type" data-value={t}><span class="filter-dot"></span>{t}</button></li>
+          ))}
+        </ul>
+      </div>
+
+      <div class="side-section">
+        <div class="filter-group-label">Category</div>
+        <ul class="filter-list">
+          <li><button class="filter-opt active" data-group="category" data-value="all"><span class="filter-dot"></span>All</button></li>
+          {categories.map(c => (
+            <li><button class="filter-opt" data-group="category" data-value={c}><span class="filter-dot"></span>{c}</button></li>
+          ))}
+        </ul>
+      </div>
+
+      <div class="side-section">
+        <div class="filter-group-label">Style</div>
+        <ul class="filter-list">
+          <li><button class="filter-opt active" data-group="style" data-value="all"><span class="filter-dot"></span>All</button></li>
+          {styles.map(s => (
+            <li><button class="filter-opt" data-group="style" data-value={s}><span class="filter-dot"></span>{s}</button></li>
+          ))}
+        </ul>
+      </div>
+
+      {tags.length > 0 && (
+        <div class="side-section">
+          <div class="filter-group-label">Tag</div>
+          <ul class="filter-list">
+            <li><button class="filter-opt active" data-group="tag" data-value="all"><span class="filter-dot"></span>All</button></li>
+            {tags.map(t => (
+              <li><button class="filter-opt" data-group="tag" data-value={t}><span class="filter-dot"></span>{t}</button></li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      <div class="side-section side-count">
+        <span id="count">{items.length} items</span>
+      </div>
+
     </div>
-  </header>
+  </aside>
 
-  <div class="filter-bar" id="filters">
-    <span class="filter-label">Filter</span>
-    <button class="filter-btn active" data-filter="all">All</button>
-
-    {platforms.map(p => (
-      <button class="filter-btn" data-filter={`platform:${p}`}>{p}</button>
-    ))}
-
-    {tags.map(t => (
-      <button class="filter-btn" data-filter={`tag:${t}`}>{t}</button>
-    ))}
-  </div>
-
-  <div class="item-count" id="count">
-    {items.length} items
-  </div>
-
-  <main class="grid-container">
+  <main id="grid-container">
     {items.length > 0 ? (
       <div class="grid" id="grid">
-        {items.map(item => (
-          <Card item={item} />
+        {items.map((item, i) => (
+          <Card item={item} index={i} />
         ))}
       </div>
     ) : (
@@ -62,39 +111,218 @@ const tags = getAllTags(items);
 </body>
 </html>
 
+<style>
+body {
+  margin: 0;
+  overflow-x: hidden;
+}
+
+/* Full-bleed grid */
+#grid-container {
+  width: 100vw;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 1rem;
+  padding: 1rem;
+  align-items: start;
+}
+
+/* Side panel — fixed right, overlays images */
+.side-panel {
+  position: fixed;
+  right: 0;
+  top: 0;
+  width: 200px;
+  height: 100vh;
+  z-index: 100;
+  overflow-y: auto;
+  scrollbar-width: none;
+}
+
+.side-panel-inner {
+  -webkit-mask-image: linear-gradient(to right, transparent 0%, black 55%);
+  mask-image: linear-gradient(to right, transparent 0%, black 55%);
+  transition: mask-image 0.25s ease, -webkit-mask-image 0.25s ease;
+}
+
+.side-panel:hover .side-panel-inner {
+  -webkit-mask-image: none;
+  mask-image: none;
+}
+
+.side-panel::-webkit-scrollbar { display: none; }
+
+.side-panel-inner {
+  padding: 24px 20px 24px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  text-align: right;
+  min-height: 100%;
+}
+
+/* Logo */
+.site-logo {
+  display: block;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--text-primary);
+  margin-bottom: 6px;
+}
+
+.site-logo span {
+  color: var(--text-muted);
+  font-weight: 400;
+}
+
+/* Nav */
+.side-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.nav-link {
+  color: var(--text-muted);
+  transition: color 0.1s;
+}
+
+.nav-link:hover,
+.nav-link--active {
+  color: var(--text-primary);
+}
+
+/* Filter sections */
+.side-section {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.filter-group-label {
+  color: var(--text-muted);
+  margin-bottom: 6px;
+}
+
+.filter-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.filter-opt {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 7px;
+  font-size: inherit;
+  font-family: var(--font);
+  color: var(--text-muted);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 2px 0;
+  width: 100%;
+  text-align: right;
+  line-height: 1.4;
+  transition: color 0.1s;
+}
+
+.filter-opt:hover { color: var(--text-primary); }
+.filter-opt:hover .filter-dot { border-color: var(--text-primary); }
+
+.filter-opt.active {
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+.filter-opt.active .filter-dot {
+  background: var(--text-primary);
+  border-color: var(--text-primary);
+}
+
+.filter-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  border: 1.5px solid var(--text-muted);
+  flex-shrink: 0;
+  order: 1; /* dot after text (right side) */
+  transition: all 0.1s;
+}
+
+/* Count */
+.side-count {
+  color: var(--text-muted);
+  margin-top: auto;
+  padding-bottom: 4px;
+}
+</style>
+
 <script>
-  const filterBtns = document.querySelectorAll('.filter-btn');
+  // Force-autoplay every video, no interaction required. The autoplay attribute
+  // alone is enough in most browsers, but some (Brave, locked-down Firefox,
+  // certain embedded webviews) silently ignore it. Setting `muted` as a JS
+  // property (not just the HTML attribute) and calling play() explicitly is
+  // the reliable cross-browser way to guarantee it actually starts.
+  function forcePlay(video: HTMLVideoElement) {
+    video.muted = true;
+    video.playsInline = true;
+    const attempt = () => video.play().catch(() => {
+      // Autoplay can still be rejected in rare cases (e.g. data-saver mode).
+      // Retry once on next paint rather than leaving it stuck on the poster.
+      requestAnimationFrame(() => video.play().catch(() => {}));
+    });
+    if (video.readyState >= 2) attempt();
+    else video.addEventListener('loadeddata', attempt, { once: true });
+  }
+
+  document.querySelectorAll('video').forEach(v => forcePlay(v as HTMLVideoElement));
+
   const cards = document.querySelectorAll('.card');
   const count = document.getElementById('count');
 
-  function applyFilter(filter) {
+  const active: Record<string, string> = {
+    source: 'all',
+    type: 'all',
+    category: 'all',
+    style: 'all',
+    tag: 'all',
+  };
+
+  function applyFilters() {
     let visible = 0;
-
     cards.forEach(card => {
-      let show = true;
-
-      if (filter !== 'all') {
-        const [type, value] = filter.split(':');
-        if (type === 'platform') {
-          show = card.dataset.platform === value;
-        } else if (type === 'tag') {
-          const cardTags = (card.dataset.tags || '').split(',');
-          show = cardTags.includes(value);
-        }
+      const el = card as HTMLElement;
+      const matches =
+        (active.source === 'all' || el.dataset.source === active.source) &&
+        (active.type === 'all' || el.dataset.type === active.type) &&
+        (active.category === 'all' || el.dataset.category === active.category) &&
+        (active.style === 'all' || (el.dataset.style || '').split(',').includes(active.style)) &&
+        (active.tag === 'all' || (el.dataset.tags || '').split(',').includes(active.tag));
+      el.style.display = matches ? '' : 'none';
+      if (matches) {
+        visible++;
+        const video = el.querySelector('video');
+        if (video) forcePlay(video as HTMLVideoElement);
       }
-
-      card.style.display = show ? '' : 'none';
-      if (show) visible++;
     });
-
-    count.textContent = `${visible} item${visible !== 1 ? 's' : ''}`;
+    count!.textContent = `${visible} items`;
   }
 
-  filterBtns.forEach(btn => {
+  document.querySelectorAll('.filter-opt').forEach(btn => {
     btn.addEventListener('click', () => {
-      filterBtns.forEach(b => b.classList.remove('active'));
+      const el = btn as HTMLElement;
+      const group = el.dataset.group!;
+      const value = el.dataset.value!;
+      active[group] = value;
+      document.querySelectorAll(`.filter-opt[data-group="${group}"]`).forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
-      applyFilter(btn.dataset.filter);
+      applyFilters();
     });
   });
 </script>

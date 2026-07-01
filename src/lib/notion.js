@@ -25,23 +25,24 @@ export async function getPublishedItems() {
       title: props['Title']?.title?.[0]?.plain_text ?? '',
       pillar: props['Pillar']?.select?.name ?? '',
       platform: props['Platform']?.select?.name ?? '',
+      source: props['Source']?.select?.name ?? '',
+      type: props['Type']?.select?.name ?? '',
+      category: props['Category']?.select?.name ?? '',
+      style: props['Style']?.multi_select?.map((t) => t.name) ?? [],
       tags: props['Tags']?.multi_select?.map((t) => t.name) ?? [],
       sourceUrl: props['Source URL']?.url ?? '',
       imageUrl: props['Image URL']?.url ?? '',
+      videoUrl: props['Video URL']?.url ?? '',
       curationNote: props['Curation Note']?.rich_text?.[0]?.plain_text ?? '',
       publishedDate: props['Published Date']?.date?.start ?? '',
     };
   });
 }
 
-export function getPillars(items) {
-  return [...new Set(items.map((i) => i.pillar).filter(Boolean))];
+export function getUnique(items, key) {
+  return [...new Set(items.map((i) => i[key]).filter(Boolean))].sort();
 }
 
-export function getPlatforms(items) {
-  return [...new Set(items.map((i) => i.platform).filter(Boolean))];
-}
-
-export function getAllTags(items) {
-  return [...new Set(items.flatMap((i) => i.tags))];
+export function getUniqueMulti(items, key) {
+  return [...new Set(items.flatMap((i) => i[key]))].filter(Boolean).sort();
 }
