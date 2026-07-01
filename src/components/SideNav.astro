@@ -1,0 +1,11 @@
+---
+const { active } = Astro.props;
+---
+
+<div class="side-section">
+  <a href="/" class="site-logo">allai<span>.design</span></a>
+  <nav class="side-nav">
+    <a href="/" class={`nav-link ${active === 'feed' ? 'nav-link--active' : ''}`}>Feed</a>
+    <a href="/info" class={`nav-link ${active === 'info' ? 'nav-link--active' : ''}`}>Info</a>
+  </nav>
+</div>

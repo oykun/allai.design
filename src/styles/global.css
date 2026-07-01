@@ -70,3 +70,75 @@ img {
   text-align: center;
   color: var(--text-muted);
 }
+
+/* Side panel — fixed right, shared across pages */
+.side-panel {
+  position: fixed;
+  right: 0;
+  top: 0;
+  width: 200px;
+  height: 100vh;
+  z-index: 100;
+  overflow-y: auto;
+  scrollbar-width: none;
+}
+
+.side-panel-inner {
+  -webkit-mask-image: linear-gradient(to right, transparent 0%, black 55%);
+  mask-image: linear-gradient(to right, transparent 0%, black 55%);
+  transition: mask-image 0.25s ease, -webkit-mask-image 0.25s ease;
+  padding: 24px 20px 24px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  text-align: right;
+  min-height: 100%;
+}
+
+.side-panel:hover .side-panel-inner {
+  -webkit-mask-image: none;
+  mask-image: none;
+}
+
+.side-panel::-webkit-scrollbar { display: none; }
+
+.side-section {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.site-logo {
+  display: block;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--text-primary);
+  margin-bottom: 6px;
+}
+
+.site-logo span {
+  color: var(--text-muted);
+  font-weight: 400;
+}
+
+.side-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.nav-link {
+  color: var(--text-muted);
+  transition: color 0.1s;
+}
+
+.nav-link:hover,
+.nav-link--active {
+  color: var(--text-primary);
+}
+
+.side-count {
+  color: var(--text-muted);
+  margin-top: auto;
+  padding-bottom: 4px;
+}

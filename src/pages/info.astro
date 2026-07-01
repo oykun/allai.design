@@ -1,4 +1,5 @@
 ---
+import SideNav from '../components/SideNav.astro';
 import '../styles/global.css';
 ---
 
@@ -13,67 +14,15 @@ import '../styles/global.css';
 </head>
 <body>
 
-  <header class="site-header">
-    <div class="header-inner">
-      <a href="/" class="site-logo">allai<span>.design</span></a>
-      <nav class="header-nav">
-        <a href="/" class="nav-link">Feed</a>
-        <a href="/info" class="nav-link nav-link--active">Info</a>
-      </nav>
+  <aside class="side-panel">
+    <div class="side-panel-inner">
+      <SideNav active="info" />
     </div>
-  </header>
+  </aside>
 
   <main class="info-page">
-
-    <section class="info-section">
-      <h1 class="info-title">What is this</h1>
-      <p>allai.design is a curated resource at the intersection of AI and design. Not another aggregator. Not a paywalled playbook. A place where designers get the signal without the noise — picked and framed by someone who actually ships AI products.</p>
-      <p>The gap this fills: <a href="https://recent.design" target="_blank" rel="noopener noreferrer">recent.design</a> has great taste but ignores AI. <a href="https://aiverse.design" target="_blank" rel="noopener noreferrer">aiverse.design</a> has great AI coverage but it's paywalled and skews academic. allai.design sits in the open middle: free, opinionated, and growing.</p>
-    </section>
-
-    <section class="info-section">
-      <h2 class="info-heading">What you'll find here</h2>
-      <ul class="info-list">
-        <li><strong>Visual curation</strong> — AI-generated interfaces, AI product UI, generative design outputs. Filtered hard — only what's actually worth seeing.</li>
-        <li><strong>AI design patterns</strong> — How real products handle streaming text, error states, confidence indicators, prompt inputs, and more.</li>
-        <li><strong>Articles</strong> — Curated links to the best writing on AI design and product thinking. Always a reason, never a link dump.</li>
-        <li><strong>Tools</strong> — AI tools for designers with a short verdict: must-have / worth trying / not yet.</li>
-        <li><strong>Product teardowns</strong> — Longer-form breakdowns of one AI product's design decisions per issue.</li>
-      </ul>
-    </section>
-
-    <section class="info-section">
-      <h2 class="info-heading">Who made it</h2>
-      <p>Oykun Yilmaz — principal-level product designer with 25+ years of experience, currently Design Lead for Data and AI Experiences at a large bank. Also runs <a href="https://designermindset.net" target="_blank" rel="noopener noreferrer">Designer Mindset</a>, a community and education business for designers.</p>
-      <p>allai.design is top-of-funnel for Designer Mindset. The progression: discover allai.design → subscribe to newsletter → follow on X → join the community.</p>
-    </section>
-
-    <section class="info-section">
-      <h2 class="info-heading">Tech stack</h2>
-      <ul class="info-stack">
-        <li>
-          <span class="stack-name">Framework</span>
-          <span class="stack-value"><a href="https://astro.build" target="_blank" rel="noopener noreferrer">Astro</a> v4 — static site generation, zero JS by default</span>
-        </li>
-        <li>
-          <span class="stack-name">CMS</span>
-          <span class="stack-value"><a href="https://notion.so" target="_blank" rel="noopener noreferrer">Notion</a> — content queue managed as a database, fetched at build time via the official API</span>
-        </li>
-        <li>
-          <span class="stack-name">Hosting</span>
-          <span class="stack-value">TBD — Vercel or Cloudflare Pages</span>
-        </li>
-        <li>
-          <span class="stack-name">Newsletter</span>
-          <span class="stack-value">TBD — Kit (formerly ConvertKit) or Ghost</span>
-        </li>
-        <li>
-          <span class="stack-name">Styling</span>
-          <span class="stack-value">Vanilla CSS — no framework, no utility classes</span>
-        </li>
-      </ul>
-    </section>
-
+    <p>allai.design is a curated resource at the intersection of AI and design. Your single source for everything AI as a designer.</p>
+    <p>Created and curated tastefully by <a href="https://x.com/oykun" target="_blank" rel="noopener noreferrer">@oykun</a>, founder and creative lead of <a href="https://crucial.design" target="_blank" rel="noopener noreferrer">Crucial.Design</a> agency.</p>
   </main>
 
 </body>
@@ -81,92 +30,24 @@ import '../styles/global.css';
 
 <style>
 .info-page {
+  max-width: 400px;
   padding: 64px 24px 120px;
   display: flex;
   flex-direction: column;
-  gap: 56px;
+  gap: 16px;
 }
 
-.info-title {
-  font-weight: 600;
-  letter-spacing: -0.02em;
-  margin-bottom: 20px;
-}
-
-.info-heading {
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: var(--text-muted);
-  margin-bottom: 16px;
-}
-
-.info-section p {
+.info-page p {
   color: var(--text-primary);
   line-height: 1.7;
-  margin-bottom: 12px;
 }
 
-.info-section p:last-child {
-  margin-bottom: 0;
-}
-
-.info-section a {
-  text-decoration: underline;
-  text-underline-offset: 3px;
-}
-
-.info-list {
-  list-style: none;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.info-list li {
-  color: var(--text-primary);
-  line-height: 1.6;
-  padding-left: 16px;
-  position: relative;
-}
-
-.info-list li::before {
-  content: '—';
-  position: absolute;
-  left: 0;
-  color: var(--text-muted);
-}
-
-.info-stack {
-  list-style: none;
-  display: flex;
-  flex-direction: column;
-}
-
-.info-stack li {
-  display: grid;
-  grid-template-columns: 100px 1fr;
-  gap: 24px;
-  padding: 14px 0;
-  border-top: 1px solid var(--border);
-  line-height: 1.5;
-}
-
-.info-stack li:last-child {
-  border-bottom: 1px solid var(--border);
-}
-
-.stack-name {
-  color: var(--text-muted);
-}
-
-.stack-value a {
+.info-page a {
   text-decoration: underline;
   text-underline-offset: 3px;
 }
 
 @media (max-width: 640px) {
   .info-page { padding: 40px 16px 80px; }
-  .info-stack li { grid-template-columns: 1fr; gap: 4px; }
 }
 </style>

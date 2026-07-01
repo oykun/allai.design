@@ -1,6 +1,7 @@
 ---
 import { getPublishedItems, getUnique, getUniqueMulti } from '../lib/notion.js';
 import Card from '../components/Card.astro';
+import SideNav from '../components/SideNav.astro';
 import '../styles/global.css';
 
 const items = await getPublishedItems();
@@ -29,13 +30,7 @@ const tags = getUniqueMulti(items, 'tags');
   <aside class="side-panel">
     <div class="side-panel-inner">
 
-      <div class="side-section">
-        <a href="/" class="site-logo">allai<span>.design</span></a>
-        <nav class="side-nav">
-          <a href="/" class="nav-link nav-link--active">Feed</a>
-          <a href="/info" class="nav-link">Info</a>
-        </nav>
-      </div>
+      <SideNav active="feed" />
 
       <div class="side-section">
         <div class="filter-group-label">Source</div>
@@ -130,78 +125,7 @@ body {
   align-items: start;
 }
 
-/* Side panel — fixed right, overlays images */
-.side-panel {
-  position: fixed;
-  right: 0;
-  top: 0;
-  width: 200px;
-  height: 100vh;
-  z-index: 100;
-  overflow-y: auto;
-  scrollbar-width: none;
-}
-
-.side-panel-inner {
-  -webkit-mask-image: linear-gradient(to right, transparent 0%, black 55%);
-  mask-image: linear-gradient(to right, transparent 0%, black 55%);
-  transition: mask-image 0.25s ease, -webkit-mask-image 0.25s ease;
-}
-
-.side-panel:hover .side-panel-inner {
-  -webkit-mask-image: none;
-  mask-image: none;
-}
-
-.side-panel::-webkit-scrollbar { display: none; }
-
-.side-panel-inner {
-  padding: 24px 20px 24px 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 28px;
-  text-align: right;
-  min-height: 100%;
-}
-
-/* Logo */
-.site-logo {
-  display: block;
-  font-weight: 600;
-  letter-spacing: -0.01em;
-  color: var(--text-primary);
-  margin-bottom: 6px;
-}
-
-.site-logo span {
-  color: var(--text-muted);
-  font-weight: 400;
-}
-
-/* Nav */
-.side-nav {
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-}
-
-.nav-link {
-  color: var(--text-muted);
-  transition: color 0.1s;
-}
-
-.nav-link:hover,
-.nav-link--active {
-  color: var(--text-primary);
-}
-
 /* Filter sections */
-.side-section {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
 .filter-group-label {
   color: var(--text-muted);
   margin-bottom: 6px;
@@ -255,12 +179,6 @@ body {
   transition: all 0.1s;
 }
 
-/* Count */
-.side-count {
-  color: var(--text-muted);
-  margin-top: auto;
-  padding-bottom: 4px;
-}
 </style>
 
 <script>
