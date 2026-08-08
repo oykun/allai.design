@@ -1,15 +1,22 @@
 ---
-import { getPublishedItems, getUnique, getUniqueMulti } from '../lib/notion.js';
+import { getPublishedItems, getUniqueMulti } from '../lib/notion.js';
 import Card from '../components/Card.astro';
 import SideNav from '../components/SideNav.astro';
 import '../styles/global.css';
 
 const items = await getPublishedItems();
-const sources = getUnique(items, 'source');
-const types = getUnique(items, 'type');
-const categories = getUnique(items, 'category');
+// Fixed taxonomy — the categories are curated, not derived from the data,
+// so the nav order stays stable regardless of what's currently published.
+const categories = [
+  'Website Design',
+  'Product Design',
+  'Reference Material',
+  'Articles',
+  'Products',
+  'Skills',
+];
+// Style is the one combined facet — the old Type and Tags values were folded into it.
 const styles = getUniqueMulti(items, 'style');
-const tags = getUniqueMulti(items, 'tags');
 ---
 
 <!DOCTYPE html>
@@ -27,30 +34,14 @@ const tags = getUniqueMulti(items, 'tags');
 </head>
 <body>
 
+  <aside class="side-panel side-panel--left">
+    <div class="side-panel-inner">
+      <SideNav active="feed" />
+    </div>
+  </aside>
+
   <aside class="side-panel">
     <div class="side-panel-inner">
-
-      <SideNav active="feed" />
-
-      <div class="side-section">
-        <div class="filter-group-label">Source</div>
-        <ul class="filter-list">
-          <li><button class="filter-opt active" data-group="source" data-value="all"><span class="filter-dot"></span>All</button></li>
-          {sources.map(s => (
-            <li><button class="filter-opt" data-group="source" data-value={s}><span class="filter-dot"></span>{s}</button></li>
-          ))}
-        </ul>
-      </div>
-
-      <div class="side-section">
-        <div class="filter-group-label">Type</div>
-        <ul class="filter-list">
-          <li><button class="filter-opt active" data-group="type" data-value="all"><span class="filter-dot"></span>All</button></li>
-          {types.map(t => (
-            <li><button class="filter-opt" data-group="type" data-value={t}><span class="filter-dot"></span>{t}</button></li>
-          ))}
-        </ul>
-      </div>
 
       <div class="side-section">
         <div class="filter-group-label">Category</div>
@@ -62,23 +53,16 @@ const tags = getUniqueMulti(items, 'tags');
         </ul>
       </div>
 
-      <div class="side-section">
-        <div class="filter-group-label">Style</div>
-        <ul class="filter-list">
-          <li><button class="filter-opt active" data-group="style" data-value="all"><span class="filter-dot"></span>All</button></li>
-          {styles.map(s => (
-            <li><button class="filter-opt" data-group="style" data-value={s}><span class="filter-dot"></span>{s}</button></li>
-          ))}
-        </ul>
-      </div>
-
-      {tags.length > 0 && (
+      {styles.length > 0 && (
         <div class="side-section">
-          <div class="filter-group-label">Tag</div>
+          <div class="filter-group-header">
+            <button type="button" id="style-clear" class="filter-clear" hidden>Clear</button>
+            <span class="filter-group-label">Style</span>
+          </div>
           <ul class="filter-list">
-            <li><button class="filter-opt active" data-group="tag" data-value="all"><span class="filter-dot"></span>All</button></li>
-            {tags.map(t => (
-              <li><button class="filter-opt" data-group="tag" data-value={t}><span class="filter-dot"></span>{t}</button></li>
+            <li><button class="filter-opt active" data-group="style" data-value="all"><span class="filter-dot"></span>All</button></li>
+            {styles.map(s => (
+              <li><button class="filter-opt" data-group="style" data-value={s}><span class="filter-dot"></span>{s}</button></li>
             ))}
           </ul>
         </div>
@@ -103,6 +87,26 @@ const tags = getUniqueMulti(items, 'tags');
     )}
   </main>
 
+  <div class="modal" id="modal" hidden role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <div class="modal-backdrop" data-modal-close></div>
+
+    <!-- Media fills the grid area; details sit in the filter column. -->
+    <div class="modal-stage">
+      <div class="modal-media"></div>
+    </div>
+
+    <aside class="modal-details">
+      <button type="button" class="modal-close" data-modal-close>Close</button>
+      <div class="side-section">
+        <h2 class="modal-title" id="modal-title"></h2>
+        <div class="modal-sub"></div>
+      </div>
+      <ul class="modal-tags"></ul>
+      <p class="modal-note"></p>
+      <a class="modal-source" target="_blank" rel="noopener noreferrer">View source ↗</a>
+    </aside>
+  </div>
+
 </body>
 </html>
 
@@ -112,16 +116,16 @@ body {
   overflow-x: hidden;
 }
 
-/* Full-bleed grid */
 #grid-container {
   width: 100vw;
 }
 
+/* 10% page margin left and right — the side nav stays flush to the edge */
 .grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
   gap: 1rem;
-  padding: 1rem;
+  padding: 1rem 10%;
   align-items: start;
 }
 
@@ -130,6 +134,32 @@ body {
   color: var(--text-muted);
   margin-bottom: 6px;
 }
+
+/* Group heading row — "Clear" sits to the left of the label, right-aligned
+   with it, and only appears once the group has a selection. */
+.filter-group-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.filter-clear {
+  font-size: inherit;
+  font-family: var(--font);
+  color: var(--text-muted);
+  background: none;
+  border: none;
+  padding: 0;
+  margin-bottom: 6px;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  transition: color 0.1s;
+}
+
+.filter-clear:hover { color: var(--text-primary); }
+.filter-clear[hidden] { display: none; }
 
 .filter-list {
   list-style: none;
@@ -179,6 +209,14 @@ body {
   transition: all 0.1s;
 }
 
+/* Style takes several values at once, so its markers are square — checkboxes
+   against Category's round, pick-one radios. */
+.filter-opt[data-group="style"] .filter-dot {
+  border-radius: 1px;
+  width: 7px;
+  height: 7px;
+}
+
 </style>
 
 <script>
@@ -204,24 +242,20 @@ body {
   const cards = document.querySelectorAll('.card');
   const count = document.getElementById('count');
 
-  const active: Record<string, string> = {
-    source: 'all',
-    type: 'all',
-    category: 'all',
-    style: 'all',
-    tag: 'all',
-  };
+  // Category is single-select. Style is multi-select: picking several styles
+  // widens the result (an item matching any of them shows), which is how
+  // faceted filters conventionally behave within one group.
+  let activeCategory = 'all';
+  const activeStyles = new Set<string>();
 
   function applyFilters() {
     let visible = 0;
     cards.forEach(card => {
       const el = card as HTMLElement;
+      const cardStyles = (el.dataset.style || '').split(',').filter(Boolean);
       const matches =
-        (active.source === 'all' || el.dataset.source === active.source) &&
-        (active.type === 'all' || el.dataset.type === active.type) &&
-        (active.category === 'all' || el.dataset.category === active.category) &&
-        (active.style === 'all' || (el.dataset.style || '').split(',').includes(active.style)) &&
-        (active.tag === 'all' || (el.dataset.tags || '').split(',').includes(active.tag));
+        (activeCategory === 'all' || el.dataset.category === activeCategory) &&
+        (activeStyles.size === 0 || cardStyles.some(s => activeStyles.has(s)));
       el.style.display = matches ? '' : 'none';
       if (matches) {
         visible++;
@@ -232,14 +266,205 @@ body {
     count!.textContent = `${visible} items`;
   }
 
+  function syncGroup(group: string, isOn: (value: string) => boolean) {
+    document.querySelectorAll(`.filter-opt[data-group="${group}"]`).forEach(b => {
+      b.classList.toggle('active', isOn((b as HTMLElement).dataset.value!));
+    });
+  }
+
+  const styleClear = document.getElementById('style-clear');
+
+  function syncStyleGroup() {
+    syncGroup('style', v => v === 'all' ? activeStyles.size === 0 : activeStyles.has(v));
+    if (styleClear) styleClear.hidden = activeStyles.size === 0;
+  }
+
+  styleClear?.addEventListener('click', () => {
+    activeStyles.clear();
+    syncStyleGroup();
+    applyFilters();
+  });
+
+  // ---- Detail modal -------------------------------------------------------
+
+  const modal = document.getElementById('modal')!;
+  const modalTitle = modal.querySelector('.modal-title') as HTMLElement;
+  const modalSub = modal.querySelector('.modal-sub') as HTMLElement;
+  const modalTags = modal.querySelector('.modal-tags') as HTMLElement;
+  const modalNote = modal.querySelector('.modal-note') as HTMLElement;
+  const modalMedia = modal.querySelector('.modal-media') as HTMLElement;
+  const modalSource = modal.querySelector('.modal-source') as HTMLAnchorElement;
+
+  let lastTrigger: HTMLElement | null = null;
+  let openedFrom: DOMRect | null = null;
+  let openedFromEl: HTMLElement | null = null;
+
+  const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /**
+   * FLIP: the modal's media starts sitting exactly on top of the card that was
+   * clicked, then animates to the size and position layout already gave it. The
+   * card grows into the big view rather than the big view appearing over it.
+   */
+  function morph(el: HTMLElement, from: DOMRect, reverse = false) {
+    const to = el.getBoundingClientRect();
+    if (!from.width || !to.width) return null;
+
+    // Measured corner-to-corner, so the transform has to scale from the same
+    // corner — with the default centre origin the element drifts off course.
+    const start = `translate(${from.left - to.left}px, ${from.top - to.top}px) ` +
+                  `scale(${from.width / to.width}, ${from.height / to.height})`;
+
+    const at = (transform: string) => ({ transform, transformOrigin: 'top left' });
+
+    return el.animate(
+      reverse ? [at('none'), at(start)] : [at(start), at('none')],
+      { duration: reverse ? 260 : 380, easing: 'cubic-bezier(0.2, 0, 0, 1)', fill: 'both' }
+    );
+  }
+
+  // Waits until the element knows its own size, so `to` is measured against
+  // real layout rather than a zero-height box.
+  function whenSized(el: HTMLElement, done: () => void) {
+    const img = el as HTMLImageElement;
+    if (el.tagName === 'IMG') {
+      if (img.complete && img.naturalWidth) done();
+      else img.addEventListener('load', done, { once: true });
+    } else {
+      const v = el as HTMLVideoElement;
+      if (v.videoWidth) done();
+      else v.addEventListener('loadedmetadata', done, { once: true });
+    }
+  }
+
+  function openModal(card: HTMLElement) {
+    const d = card.dataset;
+    const cardMedia = card.querySelector('.card-image img, .card-image video') as HTMLElement | null;
+    const from = cardMedia?.getBoundingClientRect();
+
+    modalTitle.textContent = d.title || 'Untitled';
+
+    // Source and date sit under the title; either may be missing.
+    const date = d.date
+      ? new Date(d.date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
+      : '';
+    modalSub.textContent = [d.source, date].filter(Boolean).join(' · ');
+
+    modalTags.innerHTML = '';
+    if (d.category) {
+      const li = document.createElement('li');
+      li.className = 'modal-tag--category';
+      li.textContent = d.category;
+      modalTags.append(li);
+    }
+    (d.style || '').split(',').filter(Boolean).forEach(s => {
+      const li = document.createElement('li');
+      li.textContent = s;
+      modalTags.append(li);
+    });
+
+    modalNote.textContent = d.note || '';
+
+    // Rebuild the media rather than moving the card's node, so the grid
+    // underneath keeps rendering while the modal is open.
+    modalMedia.innerHTML = '';
+    if (d.video) {
+      const v = document.createElement('video');
+      v.src = d.video;
+      if (d.image) v.poster = d.image;
+      v.loop = true;
+      v.controls = true;
+      modalMedia.append(v);
+      forcePlay(v);
+    } else if (d.image) {
+      const img = document.createElement('img');
+      img.src = d.image;
+      img.alt = d.title || '';
+      modalMedia.append(img);
+    }
+
+    modalSource.hidden = !d.sourceUrl;
+    if (d.sourceUrl) modalSource.href = d.sourceUrl;
+
+    modal.hidden = false;
+    document.body.style.overflow = 'hidden';
+    (modal.querySelector('.modal-close') as HTMLElement)?.focus();
+
+    const target = modalMedia.firstElementChild as HTMLElement | null;
+    if (target && from && cardMedia && !reduceMotion) {
+      openedFrom = from;
+      openedFromEl = cardMedia;
+      // Blank the thumbnail for the duration: with both on screen it reads as a
+      // copy flying out, not as the thumbnail itself growing.
+      cardMedia.style.visibility = 'hidden';
+      whenSized(target, () => morph(target, from));
+    }
+  }
+
+  function finishClose() {
+    modal.hidden = true;
+    modalMedia.innerHTML = ''; // stops any playing video
+    document.body.style.overflow = '';
+    if (openedFromEl) openedFromEl.style.visibility = '';
+    openedFromEl = null;
+    lastTrigger?.focus();
+    lastTrigger = null;
+    openedFrom = null;
+  }
+
+  function closeModal() {
+    const target = modalMedia.firstElementChild as HTMLElement | null;
+
+    // Shrink back into the card it came from — unless a filter has since
+    // hidden that card, in which case there's nothing to return to.
+    const cardVisible = lastTrigger?.offsetParent !== null;
+    if (target && openedFrom && cardVisible && !reduceMotion) {
+      const anim = morph(target, openedFrom, true);
+      if (anim) {
+        anim.onfinish = finishClose;
+        anim.oncancel = finishClose;
+        return;
+      }
+    }
+
+    finishClose();
+  }
+
+  document.querySelectorAll('.card').forEach(card => {
+    const trigger = card.querySelector('.card-image') as HTMLElement | null;
+    trigger?.addEventListener('click', () => {
+      lastTrigger = trigger;
+      openModal(card as HTMLElement);
+    });
+  });
+
+  modal.querySelectorAll('[data-modal-close]').forEach(el => {
+    el.addEventListener('click', closeModal);
+  });
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && !modal.hidden) closeModal();
+  });
+
+  // ---- Filters ------------------------------------------------------------
+
   document.querySelectorAll('.filter-opt').forEach(btn => {
     btn.addEventListener('click', () => {
       const el = btn as HTMLElement;
       const group = el.dataset.group!;
       const value = el.dataset.value!;
-      active[group] = value;
-      document.querySelectorAll(`.filter-opt[data-group="${group}"]`).forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
+
+      if (group === 'style') {
+        // "All" clears the selection; any other option toggles on and off.
+        if (value === 'all') activeStyles.clear();
+        else if (activeStyles.has(value)) activeStyles.delete(value);
+        else activeStyles.add(value);
+        syncStyleGroup();
+      } else {
+        activeCategory = value;
+        syncGroup(group, v => v === value);
+      }
+
       applyFilters();
     });
   });

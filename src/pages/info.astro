@@ -14,7 +14,7 @@ import '../styles/global.css';
 </head>
 <body>
 
-  <aside class="side-panel">
+  <aside class="side-panel side-panel--left">
     <div class="side-panel-inner">
       <SideNav active="info" />
     </div>
@@ -29,9 +29,10 @@ import '../styles/global.css';
 </html>
 
 <style>
+/* Left padding matches the feed grid so the copy clears the left-hand nav. */
 .info-page {
-  max-width: 400px;
-  padding: 64px 24px 120px;
+  max-width: 560px;
+  padding: 64px 24px 120px 10%;
   display: flex;
   flex-direction: column;
   gap: 16px;
@@ -48,6 +49,7 @@ import '../styles/global.css';
 }
 
 @media (max-width: 640px) {
-  .info-page { padding: 40px 16px 80px; }
+  /* Nav sits above the copy at this width, so drop the indent and clear it vertically. */
+  .info-page { padding: 120px 16px 80px; }
 }
 </style>

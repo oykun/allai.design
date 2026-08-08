@@ -1,22 +1,26 @@
 ---
 const { item } = Astro.props;
-const { title, source, type, category, style, tags, sourceUrl, imageUrl, videoUrl } = item;
+const { title, source, category, style, sourceUrl, imageUrl, videoUrl, curationNote, publishedDate } = item;
 ---
 
 <article
   class="card"
   data-source={source}
-  data-type={type}
   data-category={category}
   data-style={style.join(',')}
-  data-tags={tags.join(',')}
+  data-title={title}
+  data-source-url={sourceUrl}
+  data-image={imageUrl}
+  data-video={videoUrl}
+  data-note={curationNote}
+  data-date={publishedDate}
 >
-  <a href={sourceUrl} target="_blank" rel="noopener noreferrer" class="card-image">
+  <button type="button" class="card-image" aria-label={`Open details for ${title}`}>
     {videoUrl
       ? <video src={videoUrl} poster={imageUrl || undefined} autoplay muted loop playsinline preload="auto" disablepictureinpicture disableremoteplayback />
       : imageUrl
         ? <img src={imageUrl} alt={title} loading="lazy" />
         : <div class="card-image-placeholder">no image</div>
     }
-  </a>
+  </button>
 </article>
