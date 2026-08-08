@@ -18,10 +18,11 @@ export async function getPublishedItems() {
     ],
   });
 
-  return response.results.map((page) => {
+  const items = response.results.map((page) => {
     const props = page.properties;
     return {
       id: page.id,
+      createdTime: page.created_time,
       title: props['Title']?.title?.[0]?.plain_text ?? '',
       pillar: props['Pillar']?.select?.name ?? '',
       platform: props['Platform']?.select?.name ?? '',
@@ -37,6 +38,13 @@ export async function getPublishedItems() {
       publishedDate: props['Published Date']?.date?.start ?? '',
     };
   });
+
+  // Newest first. Notion's own sort drops rows with an empty Published Date to
+  // the bottom, which buries exactly the items just added — so fall back to the
+  // row's creation time and sort here instead of trusting the query.
+  return items.sort((a, b) =>
+    (b.publishedDate || b.createdTime).localeCompare(a.publishedDate || a.createdTime),
+  );
 }
 
 export function getUnique(items, key) {

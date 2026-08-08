@@ -48,16 +48,19 @@ async function preflight() {
     page_size: 100,
   });
 
+  // Compare against the bucket actually in use rather than a hardcoded host —
+  // R2_PUBLIC_URL is the r2.dev address until a custom domain is attached.
+  const r2Host = (process.env.R2_PUBLIC_URL || "").replace(/^https?:\/\//, "");
+
   const rows = res.results.map((page) => {
     const p = page.properties;
+    const media = p["Image URL"]?.url || p["Video URL"]?.url || "";
     return {
       title: p["Title"]?.title?.[0]?.plain_text ?? "(untitled)",
       status: p["Status"]?.select?.name ?? "",
       category: p["Category"]?.select?.name ?? "",
-      hasMedia: Boolean(p["Image URL"]?.url || p["Video URL"]?.url),
-      selfHosted: (p["Image URL"]?.url || p["Video URL"]?.url || "").includes(
-        "cdn.allai.design",
-      ),
+      hasMedia: Boolean(media),
+      selfHosted: Boolean(r2Host) && media.includes(r2Host),
     };
   });
 
