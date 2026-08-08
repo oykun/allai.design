@@ -24,8 +24,22 @@
 
 import "dotenv/config";
 import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
+import { readFile } from "node:fs/promises";
+import { extname } from "node:path";
 
 const MAX_BYTES = 100 * 1024 * 1024; // 100MB safety cap — these are curated social clips, not feature films
+
+// Local files carry no content-type header, and serving a video as
+// octet-stream stops it playing inline.
+const MIME_BY_EXT = {
+  ".jpg": "image/jpeg",
+  ".jpeg": "image/jpeg",
+  ".png": "image/png",
+  ".gif": "image/gif",
+  ".webp": "image/webp",
+  ".mp4": "video/mp4",
+  ".webm": "video/webm",
+};
 
 function fail(message) {
   console.log(JSON.stringify({ ok: false, error: message }));
@@ -50,27 +64,42 @@ async function main() {
     fail(`Missing env vars: ${missing.join(", ")} — check .env`);
   }
 
-  let res;
-  try {
-    res = await fetch(sourceUrl, {
-      headers: { "User-Agent": "Mozilla/5.0 (allai.design media fetcher)" },
-    });
-  } catch (err) {
-    fail(`Fetch failed: ${err.message}`);
+  // The source is either a remote URL or a local file — captures produced by
+  // scripts/capture.mjs are already on disk and never had a URL to fetch.
+  const isRemote = /^https?:\/\//i.test(sourceUrl);
+
+  let buffer, contentType;
+
+  if (isRemote) {
+    let res;
+    try {
+      res = await fetch(sourceUrl, {
+        headers: { "User-Agent": "Mozilla/5.0 (allai.design media fetcher)" },
+      });
+    } catch (err) {
+      fail(`Fetch failed: ${err.message}`);
+    }
+
+    if (!res.ok) {
+      fail(`Source returned ${res.status} ${res.statusText}`);
+    }
+
+    contentType = res.headers.get("content-type") || "application/octet-stream";
+    const contentLength = Number(res.headers.get("content-length") || 0);
+    if (contentLength && contentLength > MAX_BYTES) {
+      fail(`File too large: ${contentLength} bytes (cap is ${MAX_BYTES})`);
+    }
+
+    buffer = Buffer.from(await res.arrayBuffer());
+  } else {
+    try {
+      buffer = await readFile(sourceUrl);
+    } catch (err) {
+      fail(`Cannot read local file: ${err.message}`);
+    }
+    contentType = MIME_BY_EXT[extname(sourceUrl).toLowerCase()] || "application/octet-stream";
   }
 
-  if (!res.ok) {
-    fail(`Source returned ${res.status} ${res.statusText}`);
-  }
-
-  const contentType = res.headers.get("content-type") || "application/octet-stream";
-  const contentLength = Number(res.headers.get("content-length") || 0);
-  if (contentLength && contentLength > MAX_BYTES) {
-    fail(`File too large: ${contentLength} bytes (cap is ${MAX_BYTES})`);
-  }
-
-  const arrayBuffer = await res.arrayBuffer();
-  const buffer = Buffer.from(arrayBuffer);
   if (buffer.byteLength > MAX_BYTES) {
     fail(`File too large: ${buffer.byteLength} bytes (cap is ${MAX_BYTES})`);
   }

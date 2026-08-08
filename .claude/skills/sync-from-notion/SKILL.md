@@ -45,18 +45,42 @@ All three, or it silently won't show:
 be filtered to. The preflight in `npm run sync` reports each of these problems by
 name before deploying — read its output rather than deploying and eyeballing.
 
-## Re-hosting media (do this before publishing)
+## Media
 
-Rows often arrive with media hotlinked to a source CDN (`pbs.twimg.com`,
-`cloudfront.net`). Those links expire and rate-limit. Re-host to R2 first:
+**Never use a site's `og:image`.** That is the marketing card a site ships for
+social previews — not its design. For a website link, always capture the real
+page:
 
 ```bash
-npm run upload-media <sourceUrl> items/<notion-page-id>/<filename>
+npm run capture <url> --notion <notion-page-id>
 ```
 
-It prints JSON with a permanent `cdn.allai.design` URL — paste that back into the
-row's `Image URL` / `Video URL`. The preflight flags any published row still
-pointing at an outside host.
+Records a 5-second clip (holds for entry animations, then eases down through two
+viewports), takes a still at the top, uploads both to R2, and writes `Video URL`
+and `Image URL` back to the row. The still doubles as the video's poster frame.
+Add `--still` for a screenshot only. Omit `--notion` to capture without writing.
+
+Requires `playwright` (a devDependency) and `ffmpeg` (`brew install ffmpeg`).
+Consent banners are auto-dismissed, choosing reject over accept.
+
+Capturing also sidesteps sites that rate-limit direct asset fetches — trynia.ai
+returns 429 on its own og:image but records fine.
+
+For media that is already an artefact rather than a page — an X post's image or
+video — pull it from the source instead. X exposes it without scraping:
+
+```
+https://cdn.syndication.twimg.com/tweet-result?id=<tweetId>&token=a
+```
+
+Then re-host whatever you get, so the feed never depends on someone else's CDN:
+
+```bash
+npm run upload-media <sourceUrlOrLocalPath> items/<notion-page-id>/<filename>
+```
+
+It accepts a local file as well as a URL, and prints JSON with the permanent R2
+URL. The preflight flags any published row whose media is not on `R2_PUBLIC_URL`.
 
 ## Schema notes
 

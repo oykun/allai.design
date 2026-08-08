@@ -16,3 +16,6 @@ Thumbs.db
 
 # Logs
 npm-debug.log*
+
+# Local capture output
+captures/
