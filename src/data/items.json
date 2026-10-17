@@ -1,0 +1,218 @@
+[
+  {
+    "id": "47ac94eb6c74",
+    "title": "canvas-design — anthropics/skills",
+    "source": "skills.sh",
+    "category": "Skills",
+    "style": [],
+    "sourceUrl": "https://www.skills.sh/anthropics/skills/canvas-design",
+    "imageUrl": "https://pub-d7686b7c26dd403187af8d3e6340fc6c.r2.dev/items/3b622624-7aee-8191-9463-fd3c12066a81/skills-sh.jpg",
+    "videoUrl": "https://pub-d7686b7c26dd403187af8d3e6340fc6c.r2.dev/items/3b622624-7aee-8191-9463-fd3c12066a81/skills-sh.mp4",
+    "curationNote": "",
+    "publishedDate": "2026-08-08"
+  },
+  {
+    "id": "c18c737e2b14",
+    "title": "Chat app components.",
+    "source": "@roman_designer",
+    "category": "Product Design",
+    "style": [],
+    "sourceUrl": "https://x.com/roman_designer/status/1999843762017583515",
+    "imageUrl": "https://pub-d7686b7c26dd403187af8d3e6340fc6c.r2.dev/items/3b622624-7aee-81d6-b7f9-e17d9d766b0b/chat-components.jpg",
+    "videoUrl": "",
+    "curationNote": "",
+    "publishedDate": "2026-08-08"
+  },
+  {
+    "id": "e4b050c40e2d",
+    "title": "Nia - Agentic Search for External and Internal Data.",
+    "source": "trynia.ai",
+    "category": "Product Design",
+    "style": [],
+    "sourceUrl": "https://www.trynia.ai/",
+    "imageUrl": "https://pub-d7686b7c26dd403187af8d3e6340fc6c.r2.dev/items/39d22624-7aee-819e-ae63-c4e70493635c/trynia-ai.jpg",
+    "videoUrl": "https://pub-d7686b7c26dd403187af8d3e6340fc6c.r2.dev/items/39d22624-7aee-819e-ae63-c4e70493635c/trynia-ai.mp4",
+    "curationNote": "",
+    "publishedDate": "2026-08-08"
+  },
+  {
+    "id": "f0cd74cb690c",
+    "title": "Snippets from something new ♥︎",
+    "source": "@oguzyagizkara",
+    "category": "Product Design",
+    "style": [],
+    "sourceUrl": "https://x.com/oguzyagizkara/status/1972594175091876151",
+    "imageUrl": "https://pub-d7686b7c26dd403187af8d3e6340fc6c.r2.dev/items/3b622624-7aee-81a2-9b72-e9085cb0a896/snippets.jpg",
+    "videoUrl": "",
+    "curationNote": "",
+    "publishedDate": "2026-08-08"
+  },
+  {
+    "id": "5efd87aa41f5",
+    "title": "Still think about this particular mark for “io”",
+    "source": "@johnpalmer",
+    "category": "Product Design",
+    "style": [],
+    "sourceUrl": "https://x.com/johnpalmer/status/1968371410872713269",
+    "imageUrl": "https://pub-d7686b7c26dd403187af8d3e6340fc6c.r2.dev/items/3b622624-7aee-8169-96d7-f988a47978fe/io-mark.jpg",
+    "videoUrl": "",
+    "curationNote": "",
+    "publishedDate": "2026-08-08"
+  },
+  {
+    "id": "a33aea3a3dca",
+    "title": "Town | The AI Assistant That Does the Work",
+    "source": "town.com",
+    "category": "Website Design",
+    "style": [],
+    "sourceUrl": "https://www.town.com/",
+    "imageUrl": "https://pub-d7686b7c26dd403187af8d3e6340fc6c.r2.dev/items/3b622624-7aee-81c3-bb70-c7028e555dfb/town-com.jpg",
+    "videoUrl": "https://pub-d7686b7c26dd403187af8d3e6340fc6c.r2.dev/items/3b622624-7aee-81c3-bb70-c7028e555dfb/town-com.mp4",
+    "curationNote": "",
+    "publishedDate": "2026-08-08"
+  },
+  {
+    "id": "43870894037e",
+    "title": "Gemini's voice picker orb transition",
+    "source": "d2w9rnfcy7mm78.cloudfront.net",
+    "category": "Product Design",
+    "style": [
+      "Dark",
+      "Gradient",
+      "Minimal",
+      "Interface",
+      "Onboarding",
+      "Generative UI"
+    ],
+    "sourceUrl": "https://d2w9rnfcy7mm78.cloudfront.net/33225611/original_c6084a8fd3779c2ea4460d9fb12dd00e.gif?1735252653?bc=0",
+    "imageUrl": "https://pub-d7686b7c26dd403187af8d3e6340fc6c.r2.dev/items/390226247aee8165b28cc6aed81e7eda/image.gif",
+    "videoUrl": "",
+    "curationNote": "Gemini's voice picker opens on a breathing gradient orb before resolving into a single card per voice — 'Vega, bright · higher voice' — that you swipe through one at a time. The orb-to-card handoff sells personality well: it signals a voice, not a setting, before you've heard anything. But swiping through options one by one instead of scanning a list means you can't compare two voices without holding both in memory — friction that doesn't pay for itself.",
+    "publishedDate": "2026-07-03"
+  },
+  {
+    "id": "5dfc5ef8581b",
+    "title": "AI input mode switcher by Nitish Khagwal",
+    "source": "@nitishkmrk",
+    "category": "Product Design",
+    "style": [
+      "Clean",
+      "Minimal",
+      "Interface",
+      "Chat UI",
+      "Navigation"
+    ],
+    "sourceUrl": "https://x.com/nitishkmrk/status/1980523444807635342",
+    "imageUrl": "https://pub-d7686b7c26dd403187af8d3e6340fc6c.r2.dev/items/38f226247aee81b4a2e6cdbc440e15bc/image.jpg",
+    "videoUrl": "",
+    "curationNote": "The quick-switch input pattern solves a real problem — AI tools need to handle multiple input modes (text, image gen, voice) without cluttering the interface. Nitish's approach keeps it to a single icon tap with a clean mode label, no tabs, no dropdowns. The animated text transition between modes — from 'Ask Anything' to 'Generate Image' — is the kind of micro-detail that makes a pattern feel production-ready rather than prototypey.",
+    "publishedDate": "2026-06-30"
+  },
+  {
+    "id": "26211cab2804",
+    "title": "Cursor's agent task queue UI",
+    "source": "cursor.com",
+    "category": "Product Design",
+    "style": [
+      "Dashboard",
+      "Navigation"
+    ],
+    "sourceUrl": "https://cursor.com/",
+    "imageUrl": "https://pub-d7686b7c26dd403187af8d3e6340fc6c.r2.dev/items/38f226247aee81298c5adb7d01e7cb0f/image.png",
+    "videoUrl": "",
+    "curationNote": "Cursor's hero leans on a kanban-style task queue — \"In Progress\" next to \"Ready for Review\" — the right metaphor for handing work to an agent instead of writing it yourself. Stacking a live CLI window over the browser preview shows the agent's reasoning without making you tab away. Worth knowing the pattern, but the shot itself is standard SaaS marketing chrome — nothing here pushes the UI forward.",
+    "publishedDate": "2026-06-30"
+  },
+  {
+    "id": "aaa2abf2abe2",
+    "title": "Joyce's ambient agent summary concept",
+    "source": "@joycebydsgn",
+    "category": "Product Design",
+    "style": [
+      "Interface",
+      "Generative UI",
+      "Dashboard"
+    ],
+    "sourceUrl": "https://x.com/joycebydsgn/status/1943323301075378558",
+    "imageUrl": "https://pub-d7686b7c26dd403187af8d3e6340fc6c.r2.dev/items/38f226247aee818088c7d519919df243/image.jpg",
+    "videoUrl": "",
+    "curationNote": "Joyce treats the agent as ambient infrastructure rather than a chat window — one summary panel pulls highlights across Notion, Linear, Mail, Stripe and Calendar into a single feed instead of forcing you to open five apps. The blurred humanoid figure floating behind it is doing more conceptual lifting than the actual UI needs. The cross-app summarization pattern is the real idea here; the mood-board figure is the weak part.",
+    "publishedDate": "2026-06-30"
+  },
+  {
+    "id": "0c3155b74fa7",
+    "title": "Lué Studio's AI search section — scale your knowledge to ∞",
+    "source": "@oguzyagizkara",
+    "category": "Website Design",
+    "style": [
+      "Light",
+      "Clean",
+      "Minimal",
+      "Interface",
+      "Chat UI",
+      "Generative UI"
+    ],
+    "sourceUrl": "https://x.com/oguzyagizkara/status/2029496282985677074",
+    "imageUrl": "https://pub-d7686b7c26dd403187af8d3e6340fc6c.r2.dev/items/38f226247aee816e9e25c0a7c01b5557/image.jpg",
+    "videoUrl": "",
+    "curationNote": "A website hero section for an AI knowledge base where a single answer bubble does the work that a paragraph of marketing copy usually fails at. Using a code snippet as the AI response example is the right call — it signals technical precision to a developer audience without the copy having to explain anything. Light palette and dot-grid background keep all attention on the interaction, not the chrome.",
+    "publishedDate": "2026-06-30"
+  },
+  {
+    "id": "09e42abfc01e",
+    "title": "Muharrem Şenyıl's AI Oracle concept",
+    "source": "@senyil",
+    "category": "Product Design",
+    "style": [
+      "Generative UI"
+    ],
+    "sourceUrl": "https://x.com/senyil/status/2000579667888324987",
+    "imageUrl": "https://pub-d7686b7c26dd403187af8d3e6340fc6c.r2.dev/items/38f226247aee811f854cd5e98175359e/image.jpg",
+    "videoUrl": "https://pub-d7686b7c26dd403187af8d3e6340fc6c.r2.dev/items/38f226247aee811f854cd5e98175359e/video.mp4",
+    "curationNote": "The 'AI oracle' framing is a bold conceptual move — it positions AI prediction as ritual rather than utility, which is a deliberate aesthetic choice that most AI products avoid. The name alone implies mystery and authority rather than helpfulness, which flips the usual AI UX script. This is a video demo: review the motion before publishing, the static thumbnail only tells half the story.",
+    "publishedDate": "2026-06-30"
+  },
+  {
+    "id": "d02e6c1b1cb5",
+    "title": "Oğuz Yağız Kara's monochrome UI work",
+    "source": "@oguzyagizkara",
+    "category": "Product Design",
+    "style": [
+      "Navigation"
+    ],
+    "sourceUrl": "https://x.com/oguzyagizkara/status/1973294956367286379",
+    "imageUrl": "https://pub-d7686b7c26dd403187af8d3e6340fc6c.r2.dev/items/38f226247aee8160ae22d571b1a9500d/image.jpg",
+    "videoUrl": "",
+    "curationNote": "The 🤍🖤 framing is pure monochrome restraint — no colour, no decoration, contrast doing all the work. Kara consistently shows that black-and-white is a design decision, not a limitation. Review the image before publishing and update Tags to reflect the specific UI pattern shown.",
+    "publishedDate": "2026-06-30"
+  },
+  {
+    "id": "7d2d66df3dd4",
+    "title": "Orior AI — Create Photorealistic UGC Characters & Post Everywhere",
+    "source": "oriorai.com",
+    "category": "Website Design",
+    "style": [
+      "Interface"
+    ],
+    "sourceUrl": "https://www.oriorai.com/",
+    "imageUrl": "https://pub-d7686b7c26dd403187af8d3e6340fc6c.r2.dev/items/38f226247aee81f58d76f6e3b41b89f4/image.png",
+    "videoUrl": "",
+    "curationNote": "AI-generated UGC influencers that are unsettlingly close to photoreal — the hard problem is keeping one face consistent across shots, and the hero image actually pulls that off. But the landing page undersells its own claim: a single static face, zero proof of range across angles or scenes. Worth trying if you're testing synthetic UGC for ad creative; not a must-have until they show more than one frame.",
+    "publishedDate": "2026-06-30"
+  },
+  {
+    "id": "a06c424bd1fb",
+    "title": "Semaloop's live 'SPEAKING' status overlay",
+    "source": "semaloop.com",
+    "category": "Website Design",
+    "style": [
+      "Landing Page",
+      "Notifications"
+    ],
+    "sourceUrl": "https://semaloop.com/?ref=land-book.com",
+    "imageUrl": "https://pub-d7686b7c26dd403187af8d3e6340fc6c.r2.dev/items/38f226247aee817c869ef84cb6bbdc84/image.png",
+    "videoUrl": "",
+    "curationNote": "Semaloop's hero swaps the usual static dashboard mock for a live \"SPEAKING\" status pill pulsing over a phone screen — it shows the agent listening and acting instead of just promising it. That's the actual takeaway: the real-time status indicator is worth stealing for any voice or agent UI, regardless of what you're building. Worth trying if mobile QA is your bottleneck; the design itself isn't the product here.",
+    "publishedDate": "2026-06-30"
+  }
+]

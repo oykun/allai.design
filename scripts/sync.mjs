@@ -1,171 +1,226 @@
 #!/usr/bin/env node
 /**
- * Publishes the current state of the Notion database to the live site.
+ * Publishes the vault's allai items to the live site.
  *
- * The site is a static Astro build that queries Notion at build time, so a
- * Notion edit changes nothing until the site rebuilds. This fires the Vercel
- * deploy hook, which rebuilds on the same commit — no code change, no commit.
+ * Obsidian is the content queue: a note with the `allai` tag and `publish: true`
+ * is an item. Vercel can't see the vault, so the site builds from a snapshot
+ * committed to the repo (src/data/items.json). This script makes that snapshot:
+ *
+ *   1. reads every allai note in the vault (scripts/lib/vault.mjs)
+ *   2. re-hosts media on R2 for published items that still lack it —
+ *      X posts via the syndication endpoint, websites by recording the page —
+ *      and writes `image` / `video` into the note's frontmatter
+ *   3. writes src/data/items.json with the published items only
+ *      (no projects, no unpublished notes — the repo is public)
+ *   4. commits that file and pushes, which triggers the Vercel build
  *
  * Usage:
- *   npm run sync           preflight, then deploy
- *   npm run sync -- --dry  preflight only, no deploy
+ *   npm run sync               everything above
+ *   npm run sync -- --dry      report only: touches nothing, uploads nothing
+ *   npm run sync -- --no-push  media + snapshot, but leave git alone
  *
- * Required env (see .env.example):
- *   NOTION_TOKEN, NOTION_DATABASE_ID   read the queue for the preflight
- *   VERCEL_DEPLOY_HOOK_URL             the deploy hook to fire
- *
- * Optional env — without these the script fires and exits without waiting:
- *   VERCEL_TOKEN, VERCEL_PROJECT_ID, VERCEL_TEAM_ID   poll until the build lands
+ * Env (see .env.example): R2_*, optionally ALLAI_VAULT_DIRS.
  */
 
 import "dotenv/config";
-import { Client } from "@notionhq/client";
+import { readFile, writeFile, mkdir } from "node:fs/promises";
+import { execFile } from "node:child_process";
+import { promisify } from "node:util";
+import { CATEGORIES, readItems, setFrontmatterKeys, slugify } from "./lib/vault.mjs";
+import { isOnR2, uploadToR2 } from "./lib/r2.mjs";
+import { tweetId, fetchTweet, pickMedia } from "./lib/x.mjs";
+import { captureSite, hasFfmpeg } from "./lib/capture.mjs";
+
+const run = promisify(execFile);
 
 const DRY = process.argv.includes("--dry");
-const POLL_TIMEOUT_MS = 5 * 60 * 1000;
-const POLL_EVERY_MS = 4000;
+const NO_PUSH = process.argv.includes("--no-push");
+const SNAPSHOT = "src/data/items.json";
 
 function die(message) {
   console.error(`✗ ${message}`);
   process.exit(1);
 }
 
-/**
- * An item only reaches the feed if it is Published AND has media — the grid is
- * image-led, so a row missing both URLs renders as an empty placeholder card.
- * Surfacing that here is the point: it's the mistake that silently costs you a
- * deploy cycle.
- */
-async function preflight() {
-  const { NOTION_TOKEN, NOTION_DATABASE_ID } = process.env;
-  if (!NOTION_TOKEN || !NOTION_DATABASE_ID) {
-    die("Missing NOTION_TOKEN or NOTION_DATABASE_ID — check .env");
-  }
+const warn = (items, label) => {
+  if (!items.length) return;
+  console.log(`  ! ${items.length} ${label}:`);
+  for (const i of items) console.log(`      ${i.title}  (${i.fileName}.md)`);
+  console.log();
+};
 
-  const notion = new Client({ auth: NOTION_TOKEN });
-  const res = await notion.databases.query({
-    database_id: NOTION_DATABASE_ID,
-    page_size: 100,
-  });
+// ---------------------------------------------------------------------------
 
-  // Compare against the bucket actually in use rather than a hardcoded host —
-  // R2_PUBLIC_URL is the r2.dev address until a custom domain is attached.
-  const r2Host = (process.env.R2_PUBLIC_URL || "").replace(/^https?:\/\//, "");
+async function hostMedia(item) {
+  const key = `items/${item.id}`;
+  const slug = slugify(item.title).slice(0, 60) || item.id;
 
-  const rows = res.results.map((page) => {
-    const p = page.properties;
-    const media = p["Image URL"]?.url || p["Video URL"]?.url || "";
-    return {
-      title: p["Title"]?.title?.[0]?.plain_text ?? "(untitled)",
-      status: p["Status"]?.select?.name ?? "",
-      category: p["Category"]?.select?.name ?? "",
-      hasMedia: Boolean(media),
-      selfHosted: Boolean(r2Host) && media.includes(r2Host),
-    };
-  });
-
-  const published = rows.filter((r) => r.status === "Published");
-  const pending = rows.filter((r) => r.status !== "Published");
-
-  console.log(`\n${published.length} item(s) will be published.\n`);
-
-  const noMedia = published.filter((r) => !r.hasMedia);
-  const noCategory = published.filter((r) => !r.category);
-  const hotlinked = published.filter((r) => r.hasMedia && !r.selfHosted);
-
-  for (const [label, list] of [
-    ["no image or video — will render an empty card", noMedia],
-    ["no category — hidden by every category filter", noCategory],
-    ["media still hotlinked, not on R2 — link may rot", hotlinked],
-  ]) {
-    if (!list.length) continue;
-    console.log(`  ! ${list.length} ${label}:`);
-    for (const r of list) console.log(`      ${r.title}`);
-    console.log();
-  }
-
-  if (pending.length) {
-    console.log(`  ${pending.length} row(s) not published, so not included:`);
-    for (const r of pending) {
-      console.log(`      ${r.title}${r.status ? ` (${r.status})` : ""}`);
+  if (item.isX) {
+    const tweet = await fetchTweet(tweetId(item.sourceUrl));
+    let media = pickMedia(tweet);
+    // X Articles (long-form posts) carry no media in the syndication payload,
+    // but the clipper saved the article's own images — those are the real
+    // thing, not a marketing card, so they're fine to use.
+    if (!media) {
+      const saved = [item.imageUrl, item.clippedImage].find((u) => /pbs\.twimg\.com/.test(u || ""));
+      if (!saved) throw new Error("post has no image or video");
+      media = { video: null, poster: saved };
     }
-    console.log();
+    const updates = {};
+    if (media.video) {
+      updates.video = (await uploadToR2(media.video, `${key}/${slug}.mp4`)).url;
+    }
+    if (media.poster) {
+      const ext = /\.png/i.test(media.poster) ? "png" : "jpg";
+      updates.image = (await uploadToR2(media.poster, `${key}/${slug}.${ext}`)).url;
+    }
+    return updates;
   }
 
-  return published.length;
+  // Anything else is a web page: record it. Never fall back to og:image —
+  // that's the site's marketing card, not its design.
+  const still = !(await hasFfmpeg());
+  if (still) console.log("    ffmpeg not found — still only (brew install ffmpeg for video)");
+  const cap = await captureSite(item.sourceUrl, { still, log: (m) => console.log(`    ${m}`) });
+  const updates = { image: (await uploadToR2(cap.stillPath, `${key}/${slug}.jpg`)).url };
+  if (cap.videoPath) updates.video = (await uploadToR2(cap.videoPath, `${key}/${slug}.mp4`)).url;
+  await cap.cleanup();
+  return updates;
 }
 
-async function deploy() {
-  const hook = process.env.VERCEL_DEPLOY_HOOK_URL;
-  if (!hook) die("Missing VERCEL_DEPLOY_HOOK_URL — check .env");
+async function ensureMedia(items) {
+  const needs = items.filter((i) => !isOnR2(i.imageUrl) && !isOnR2(i.videoUrl));
+  if (!needs.length) return [];
 
-  const res = await fetch(hook, { method: "POST" });
-  if (!res.ok) die(`Deploy hook returned ${res.status} ${res.statusText}`);
+  if (DRY) {
+    warn(needs, "need media hosted on R2 — a real run captures these");
+    return needs; // excluded from the dry count below
+  }
 
-  const body = await res.json().catch(() => ({}));
-  console.log(`→ build triggered${body?.job?.id ? ` (job ${body.job.id})` : ""}`);
-  return body?.job?.id ?? null;
+  const failed = [];
+  for (const item of needs) {
+    console.log(`  → hosting media: ${item.title}`);
+    try {
+      const updates = await hostMedia(item);
+      await setFrontmatterKeys(item.file, updates);
+      Object.assign(item, { imageUrl: updates.image || item.imageUrl, videoUrl: updates.video || item.videoUrl });
+      console.log(`    ${Object.keys(updates).join(" + ")} → R2`);
+    } catch (err) {
+      console.log(`    ✗ ${err.message}`);
+      failed.push(item);
+    }
+  }
+  console.log();
+  return failed;
 }
 
-async function waitForDeployment() {
-  const { VERCEL_TOKEN, VERCEL_PROJECT_ID, VERCEL_TEAM_ID } = process.env;
-  if (!VERCEL_TOKEN || !VERCEL_PROJECT_ID) {
-    console.log(
-      "\nNot waiting for the build — set VERCEL_TOKEN and VERCEL_PROJECT_ID in .env to poll.\n" +
-        "It usually lands in under a minute.\n",
-    );
+function toPublic(item) {
+  return {
+    id: item.id,
+    title: item.title,
+    source: item.source,
+    category: item.category,
+    style: item.style,
+    sourceUrl: item.sourceUrl,
+    imageUrl: item.imageUrl,
+    videoUrl: item.videoUrl,
+    curationNote: item.curationNote,
+    publishedDate: item.created,
+  };
+}
+
+async function readSnapshot() {
+  try {
+    return JSON.parse(await readFile(SNAPSHOT, "utf8"));
+  } catch {
+    return [];
+  }
+}
+
+async function commitAndPush(count, newTitles) {
+  const { stdout: branch } = await run("git", ["rev-parse", "--abbrev-ref", "HEAD"]);
+  const { stdout: status } = await run("git", ["status", "--porcelain", "--", SNAPSHOT]);
+  if (!status.trim()) {
+    console.log("Snapshot unchanged — nothing to commit.\n");
     return;
   }
 
-  const url =
-    `https://api.vercel.com/v6/deployments?projectId=${VERCEL_PROJECT_ID}&limit=1` +
-    (VERCEL_TEAM_ID ? `&teamId=${VERCEL_TEAM_ID}` : "");
+  const summary = newTitles.length
+    ? `Publish ${newTitles.length} new item${newTitles.length === 1 ? "" : "s"}`
+    : `Update published items`;
+  const body = newTitles.map((t) => `- ${t}`).join("\n");
+  await run("git", ["add", "--", SNAPSHOT]);
+  await run("git", ["commit", "-q", "-m", `${summary} (${count} live)`, ...(body ? ["-m", body] : []), "--", SNAPSHOT]);
+  console.log(`→ committed on ${branch.trim()}`);
 
-  const startedAt = Date.now();
-  let lastState = "";
-
-  while (Date.now() - startedAt < POLL_TIMEOUT_MS) {
-    await new Promise((r) => setTimeout(r, POLL_EVERY_MS));
-
-    const res = await fetch(url, {
-      headers: { Authorization: `Bearer ${VERCEL_TOKEN}` },
-    });
-    if (!res.ok) {
-      console.log(`  (couldn't read deployment status: ${res.status})`);
-      return;
+  try {
+    await run("git", ["push", "-q", "origin", "HEAD"]);
+    console.log(`→ pushed. Vercel builds from main; it usually lands in under a minute.`);
+    if (branch.trim() !== "main") {
+      console.log(`  (you're on ${branch.trim()} — production only updates once this reaches main)`);
     }
-
-    const { deployments = [] } = await res.json();
-    const d = deployments[0];
-    if (!d) continue;
-
-    if (d.state !== lastState) {
-      lastState = d.state;
-      console.log(`  ${d.state.toLowerCase()}…`);
-    }
-
-    if (d.state === "READY") {
-      console.log(`\n✓ live — https://${d.url}\n`);
-      return;
-    }
-    if (["ERROR", "CANCELED"].includes(d.state)) {
-      die(`Deployment ${d.state.toLowerCase()}: https://vercel.com/${d.inspectorUrl ?? ""}`);
-    }
+  } catch (err) {
+    console.log(`✗ push failed: ${err.stderr || err.message}`);
+    console.log("  The commit is local — push it yourself when you're online.");
   }
-
-  console.log("\nStill building after 5 minutes — check the Vercel dashboard.\n");
+  console.log();
 }
 
-const count = await preflight();
+// ---------------------------------------------------------------------------
+
+const errors = [];
+const all = await readItems({ onError: (file, err) => errors.push(`${file}: ${err.message}`) });
+for (const e of errors) console.log(`  ! skipped ${e}`);
+
+const published = all.filter((i) => i.publish);
+const pending = all.filter((i) => !i.publish);
+
+console.log(`\n${all.length} allai note(s) in the vault, ${published.length} marked publish.\n`);
+
+// Problems the preflight should name before anything ships.
+warn(published.filter((i) => !i.sourceUrl), "have no source URL — can't be published");
+warn(published.filter((i) => !i.category), "have no category — hidden by every category filter");
+warn(published.filter((i) => i.category && !CATEGORIES.includes(i.category)),
+  `have a category outside the fixed list (${CATEGORIES.join(" / ")})`);
+warn(published.filter((i) => !i.curationNote), "have no 'What I like' note — the card will have no take");
+
+const publishable = published.filter((i) => i.sourceUrl);
+const failed = await ensureMedia(publishable);
+const hosted = publishable.filter((i) => !failed.includes(i) && (isOnR2(i.imageUrl) || isOnR2(i.videoUrl)));
+if (!DRY) warn(failed, "could not get media — left off the site until fixed");
+
+// Two notes clipped from the same page are one item; the first (newest) wins.
+const seen = new Set();
+const duplicates = [];
+const live = hosted.filter((i) => (seen.has(i.id) ? (duplicates.push(i), false) : (seen.add(i.id), true)));
+warn(duplicates, "duplicate another published note's source URL — only one is shown");
+
+if (pending.length) {
+  console.log(`  ${pending.length} note(s) not marked publish, so not included:`);
+  for (const i of pending) console.log(`      ${i.title}`);
+  console.log();
+}
+
+const before = await readSnapshot();
+const beforeIds = new Set(before.map((i) => i.id));
+const newTitles = live.filter((i) => !beforeIds.has(i.id)).map((i) => i.title);
+
+console.log(`${live.length} item(s) go live${newTitles.length ? `, ${newTitles.length} new:` : "."}`);
+for (const t of newTitles) console.log(`      + ${t}`);
+console.log();
 
 if (DRY) {
-  console.log("Dry run — nothing deployed.\n");
+  console.log("Dry run — nothing written, uploaded, or deployed.\n");
   process.exit(0);
 }
+if (live.length === 0) die("Nothing is publishable — refusing to write an empty feed.");
 
-if (count === 0) {
-  die("Nothing is published — refusing to deploy an empty feed.");
+await mkdir("src/data", { recursive: true });
+await writeFile(SNAPSHOT, JSON.stringify(live.map(toPublic), null, 2) + "\n");
+console.log(`→ wrote ${SNAPSHOT}`);
+
+if (NO_PUSH) {
+  console.log("--no-push: snapshot written, git untouched.\n");
+} else {
+  await commitAndPush(live.length, newTitles);
 }
-
-await deploy();
-await waitForDeployment();

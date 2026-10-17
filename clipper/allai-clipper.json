@@ -1,0 +1,71 @@
+{
+  "schemaVersion": "0.1.0",
+  "name": "allai",
+  "behavior": "create",
+  "noteContentFormat": "## What I like\n\n\n\n## Clipped\n\n{{content}}",
+  "properties": [
+    {
+      "name": "title",
+      "value": "{{title}}",
+      "type": "text"
+    },
+    {
+      "name": "source",
+      "value": "{{url}}",
+      "type": "text"
+    },
+    {
+      "name": "author",
+      "value": "{{author|split:\", \"|wikilink|join}}",
+      "type": "multitext"
+    },
+    {
+      "name": "published",
+      "value": "{{published}}",
+      "type": "date"
+    },
+    {
+      "name": "created",
+      "value": "{{date}}",
+      "type": "date"
+    },
+    {
+      "name": "description",
+      "value": "{{description}}",
+      "type": "text"
+    },
+    {
+      "name": "image",
+      "value": "{{image}}",
+      "type": "text"
+    },
+    {
+      "name": "tags",
+      "value": "allai, clippings",
+      "type": "multitext"
+    },
+    {
+      "name": "category",
+      "value": "",
+      "type": "text"
+    },
+    {
+      "name": "style",
+      "value": "",
+      "type": "multitext"
+    },
+    {
+      "name": "projects",
+      "value": "",
+      "type": "multitext"
+    },
+    {
+      "name": "publish",
+      "value": "false",
+      "type": "checkbox"
+    }
+  ],
+  "triggers": [],
+  "noteNameFormat": "{{title}}",
+  "path": "Clippings"
+}

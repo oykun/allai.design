@@ -19,3 +19,6 @@ npm-debug.log*
 
 # Local capture output
 captures/
+
+# Local moodboard exports (the default goes to the vault, not here)
+moodboards/
