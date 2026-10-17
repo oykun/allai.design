@@ -1,10 +1,10 @@
 ---
-import { getPublishedItems, getUniqueMulti } from '../lib/notion.js';
+import { getPublishedItems, getUniqueMulti } from '../lib/items.js';
 import Card from '../components/Card.astro';
 import SideNav from '../components/SideNav.astro';
 import '../styles/global.css';
 
-const items = await getPublishedItems();
+const items = getPublishedItems();
 // Fixed taxonomy — the categories are curated, not derived from the data,
 // so the nav order stays stable regardless of what's currently published.
 const categories = [

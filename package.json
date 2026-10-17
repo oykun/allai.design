@@ -6,15 +6,16 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
-    "upload-media": "node scripts/upload-to-r2.mjs",
     "sync": "node scripts/sync.mjs",
-    "capture": "node scripts/capture.mjs"
+    "capture": "node scripts/capture.mjs",
+    "moodboard": "node scripts/moodboard.mjs",
+    "upload-media": "node scripts/upload-to-r2.mjs"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1077.0",
-    "@notionhq/client": "^2.2.15",
     "astro": "^4.16.0",
-    "dotenv": "^17.4.2"
+    "dotenv": "^17.4.2",
+    "yaml": "^2.9.1"
   },
   "devDependencies": {
     "playwright": "^1.62.1"
