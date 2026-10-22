@@ -9,6 +9,7 @@
     "sync": "node scripts/sync.mjs",
     "capture": "node scripts/capture.mjs",
     "moodboard": "node scripts/moodboard.mjs",
+    "inbox": "node scripts/inbox.mjs",
     "upload-media": "node scripts/upload-to-r2.mjs"
   },
   "dependencies": {

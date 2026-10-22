@@ -1,0 +1,5 @@
+# Xcode output and per-user state for the Safari wrapper
+safari/build/
+safari/**/xcuserdata/
+safari/**/*.xcuserstate
+safari/**/DerivedData/

@@ -1,0 +1,30 @@
+{
+  "manifest_version": 3,
+  "name": "allai",
+  "version": "1.0.0",
+  "description": "Right-click an image (or a page) and send it to your allai.design inbox with one line on what you like.",
+  "icons": {
+    "48": "icons/icon-48.png",
+    "96": "icons/icon-96.png",
+    "128": "icons/icon-128.png",
+    "256": "icons/icon-256.png",
+    "512": "icons/icon-512.png"
+  },
+  "permissions": ["contextMenus", "activeTab", "scripting", "storage"],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://x.com/*", "https://twitter.com/*"],
+      "js": ["form.js", "content.js"],
+      "run_at": "document_idle"
+    }
+  ],
+  "action": {
+    "default_title": "Add page to allai"
+  },
+  "options_ui": {
+    "page": "options.html"
+  }
+}

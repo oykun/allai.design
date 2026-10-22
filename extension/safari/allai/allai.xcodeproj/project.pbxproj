@@ -1,0 +1,609 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 110;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		FFF220553089F19A0037B31A /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFF220543089F19A0037B31A /* AppDelegate.swift */; };
+		FFF220593089F19A0037B31A /* Main.html in Resources */ = {isa = PBXBuildFile; fileRef = FFF220573089F19A0037B31A /* Main.html */; };
+		FFF2205B3089F19A0037B31A /* Icon.png in Resources */ = {isa = PBXBuildFile; fileRef = FFF2205A3089F19A0037B31A /* Icon.png */; };
+		FFF2205D3089F19A0037B31A /* Style.css in Resources */ = {isa = PBXBuildFile; fileRef = FFF2205C3089F19A0037B31A /* Style.css */; };
+		FFF2205F3089F19A0037B31A /* Script.js in Resources */ = {isa = PBXBuildFile; fileRef = FFF2205E3089F19A0037B31A /* Script.js */; };
+		FFF220613089F19A0037B31A /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFF220603089F19A0037B31A /* ViewController.swift */; };
+		FFF220643089F19A0037B31A /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = FFF220623089F19A0037B31A /* Main.storyboard */; };
+		FFF220663089F19B0037B31A /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = FFF220653089F19B0037B31A /* Assets.xcassets */; };
+		FFF2206D3089F19B0037B31A /* allai Extension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = FFF2206C3089F19B0037B31A /* allai Extension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		FFF220723089F19B0037B31A /* SafariWebExtensionHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFF220713089F19B0037B31A /* SafariWebExtensionHandler.swift */; };
+		FFF220873089F19B0037B31A /* popup.js in Resources */ = {isa = PBXBuildFile; fileRef = FFF2207E3089F19B0037B31A /* popup.js */; };
+		FFF220883089F19B0037B31A /* background.js in Resources */ = {isa = PBXBuildFile; fileRef = FFF2207F3089F19B0037B31A /* background.js */; };
+		FFF220893089F19B0037B31A /* popup.html in Resources */ = {isa = PBXBuildFile; fileRef = FFF220803089F19B0037B31A /* popup.html */; };
+		FFF2208A3089F19B0037B31A /* options.js in Resources */ = {isa = PBXBuildFile; fileRef = FFF220813089F19B0037B31A /* options.js */; };
+		FFF2208B3089F19B0037B31A /* icons in Resources */ = {isa = PBXBuildFile; fileRef = FFF220823089F19B0037B31A /* icons */; };
+		FFF2208C3089F19B0037B31A /* manifest.json in Resources */ = {isa = PBXBuildFile; fileRef = FFF220833089F19B0037B31A /* manifest.json */; };
+		FFF2208D3089F19B0037B31A /* options.html in Resources */ = {isa = PBXBuildFile; fileRef = FFF220843089F19B0037B31A /* options.html */; };
+		FFF2208E3089F19B0037B31A /* content.js in Resources */ = {isa = PBXBuildFile; fileRef = FFF220853089F19B0037B31A /* content.js */; };
+		FFF2208F3089F19B0037B31A /* form.js in Resources */ = {isa = PBXBuildFile; fileRef = FFF220863089F19B0037B31A /* form.js */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		FFF2206E3089F19B0037B31A /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = FFF220493089F19A0037B31A /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = FFF2206B3089F19B0037B31A;
+			remoteInfo = "allai Extension";
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		FFF220793089F19B0037B31A /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			dstPath = "";
+			dstSubfolder = PlugIns;
+			files = (
+				FFF2206D3089F19B0037B31A /* allai Extension.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		FFF220513089F19A0037B31A /* allai.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = allai.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		FFF220543089F19A0037B31A /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		FFF220583089F19A0037B31A /* Base */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = Base; path = Base.lproj/Main.html; sourceTree = "<group>"; };
+		FFF2205A3089F19A0037B31A /* Icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Icon.png; sourceTree = "<group>"; };
+		FFF2205C3089F19A0037B31A /* Style.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = Style.css; sourceTree = "<group>"; };
+		FFF2205E3089F19A0037B31A /* Script.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = Script.js; sourceTree = "<group>"; };
+		FFF220603089F19A0037B31A /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
+		FFF220633089F19A0037B31A /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		FFF220653089F19B0037B31A /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		FFF220673089F19B0037B31A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		FFF2206C3089F19B0037B31A /* allai Extension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "allai Extension.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
+		FFF220713089F19B0037B31A /* SafariWebExtensionHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SafariWebExtensionHandler.swift; sourceTree = "<group>"; };
+		FFF220733089F19B0037B31A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		FFF2207E3089F19B0037B31A /* popup.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; name = popup.js; path = ../../../src/popup.js; sourceTree = "<group>"; };
+		FFF2207F3089F19B0037B31A /* background.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; name = background.js; path = ../../../src/background.js; sourceTree = "<group>"; };
+		FFF220803089F19B0037B31A /* popup.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = popup.html; path = ../../../src/popup.html; sourceTree = "<group>"; };
+		FFF220813089F19B0037B31A /* options.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; name = options.js; path = ../../../src/options.js; sourceTree = "<group>"; };
+		FFF220823089F19B0037B31A /* icons */ = {isa = PBXFileReference; lastKnownFileType = folder; name = icons; path = ../../../src/icons; sourceTree = "<group>"; };
+		FFF220833089F19B0037B31A /* manifest.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = manifest.json; path = ../../../src/manifest.json; sourceTree = "<group>"; };
+		FFF220843089F19B0037B31A /* options.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = options.html; path = ../../../src/options.html; sourceTree = "<group>"; };
+		FFF220853089F19B0037B31A /* content.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; name = content.js; path = ../../../src/content.js; sourceTree = "<group>"; };
+		FFF220863089F19B0037B31A /* form.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; name = form.js; path = ../../../src/form.js; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		FFF2204E3089F19A0037B31A /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			files = (
+			);
+		};
+		FFF220693089F19B0037B31A /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			files = (
+			);
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		FFF220483089F19A0037B31A = {
+			isa = PBXGroup;
+			children = (
+				FFF220533089F19A0037B31A /* allai */,
+				FFF220703089F19B0037B31A /* allai Extension */,
+				FFF220523089F19A0037B31A /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		FFF220523089F19A0037B31A /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				FFF220513089F19A0037B31A /* allai.app */,
+				FFF2206C3089F19B0037B31A /* allai Extension.appex */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		FFF220533089F19A0037B31A /* allai */ = {
+			isa = PBXGroup;
+			children = (
+				FFF220543089F19A0037B31A /* AppDelegate.swift */,
+				FFF220603089F19A0037B31A /* ViewController.swift */,
+				FFF220623089F19A0037B31A /* Main.storyboard */,
+				FFF220653089F19B0037B31A /* Assets.xcassets */,
+				FFF220673089F19B0037B31A /* Info.plist */,
+				FFF220563089F19A0037B31A /* Resources */,
+			);
+			path = allai;
+			sourceTree = "<group>";
+		};
+		FFF220563089F19A0037B31A /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				FFF220573089F19A0037B31A /* Main.html */,
+				FFF2205A3089F19A0037B31A /* Icon.png */,
+				FFF2205C3089F19A0037B31A /* Style.css */,
+				FFF2205E3089F19A0037B31A /* Script.js */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+		FFF220703089F19B0037B31A /* allai Extension */ = {
+			isa = PBXGroup;
+			children = (
+				FFF2207D3089F19B0037B31A /* Resources */,
+				FFF220713089F19B0037B31A /* SafariWebExtensionHandler.swift */,
+				FFF220733089F19B0037B31A /* Info.plist */,
+			);
+			path = "allai Extension";
+			sourceTree = "<group>";
+		};
+		FFF2207D3089F19B0037B31A /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				FFF2207E3089F19B0037B31A /* popup.js */,
+				FFF2207F3089F19B0037B31A /* background.js */,
+				FFF220803089F19B0037B31A /* popup.html */,
+				FFF220813089F19B0037B31A /* options.js */,
+				FFF220823089F19B0037B31A /* icons */,
+				FFF220833089F19B0037B31A /* manifest.json */,
+				FFF220843089F19B0037B31A /* options.html */,
+				FFF220853089F19B0037B31A /* content.js */,
+				FFF220863089F19B0037B31A /* form.js */,
+			);
+			name = Resources;
+			path = "allai Extension";
+			sourceTree = SOURCE_ROOT;
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		FFF220503089F19A0037B31A /* allai */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = FFF2207A3089F19B0037B31A /* Build configuration list for PBXNativeTarget "allai" */;
+			buildPhases = (
+				FFF2204D3089F19A0037B31A /* Sources */,
+				FFF2204E3089F19A0037B31A /* Frameworks */,
+				FFF2204F3089F19A0037B31A /* Resources */,
+				FFF220793089F19B0037B31A /* Embed Foundation Extensions */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				FFF2206F3089F19B0037B31A /* PBXTargetDependency */,
+			);
+			name = allai;
+			productName = allai;
+			productReference = FFF220513089F19A0037B31A /* allai.app */;
+			productType = "com.apple.product-type.application";
+		};
+		FFF2206B3089F19B0037B31A /* allai Extension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = FFF220763089F19B0037B31A /* Build configuration list for PBXNativeTarget "allai Extension" */;
+			buildPhases = (
+				FFF220683089F19B0037B31A /* Sources */,
+				FFF220693089F19B0037B31A /* Frameworks */,
+				FFF2206A3089F19B0037B31A /* Resources */,
+			);
+			buildRules = (
+			);
+			name = "allai Extension";
+			productName = "allai Extension";
+			productReference = FFF2206C3089F19B0037B31A /* allai Extension.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		FFF220493089F19A0037B31A /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 2710;
+				LastUpgradeCheck = 2710;
+				TargetAttributes = {
+					FFF220503089F19A0037B31A = {
+						CreatedOnToolsVersion = 27.1;
+					};
+					FFF2206B3089F19B0037B31A = {
+						CreatedOnToolsVersion = 27.1;
+					};
+				};
+			};
+			buildConfigurationList = FFF2204C3089F19A0037B31A /* Build configuration list for PBXProject "allai" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = FFF220483089F19A0037B31A;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = FFF220523089F19A0037B31A /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				FFF220503089F19A0037B31A /* allai */,
+				FFF2206B3089F19B0037B31A /* allai Extension */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		FFF2204F3089F19A0037B31A /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			files = (
+				FFF2205B3089F19A0037B31A /* Icon.png in Resources */,
+				FFF220643089F19A0037B31A /* Main.storyboard in Resources */,
+				FFF2205F3089F19A0037B31A /* Script.js in Resources */,
+				FFF220593089F19A0037B31A /* Main.html in Resources */,
+				FFF220663089F19B0037B31A /* Assets.xcassets in Resources */,
+				FFF2205D3089F19A0037B31A /* Style.css in Resources */,
+			);
+		};
+		FFF2206A3089F19B0037B31A /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			files = (
+				FFF2208F3089F19B0037B31A /* form.js in Resources */,
+				FFF2208E3089F19B0037B31A /* content.js in Resources */,
+				FFF2208D3089F19B0037B31A /* options.html in Resources */,
+				FFF220883089F19B0037B31A /* background.js in Resources */,
+				FFF2208A3089F19B0037B31A /* options.js in Resources */,
+				FFF220893089F19B0037B31A /* popup.html in Resources */,
+				FFF2208B3089F19B0037B31A /* icons in Resources */,
+				FFF2208C3089F19B0037B31A /* manifest.json in Resources */,
+				FFF220873089F19B0037B31A /* popup.js in Resources */,
+			);
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		FFF2204D3089F19A0037B31A /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			files = (
+				FFF220613089F19A0037B31A /* ViewController.swift in Sources */,
+				FFF220553089F19A0037B31A /* AppDelegate.swift in Sources */,
+			);
+		};
+		FFF220683089F19B0037B31A /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			files = (
+				FFF220723089F19B0037B31A /* SafariWebExtensionHandler.swift in Sources */,
+			);
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		FFF2206F3089F19B0037B31A /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = FFF2206B3089F19B0037B31A /* allai Extension */;
+			targetProxy = FFF2206E3089F19B0037B31A /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin PBXVariantGroup section */
+		FFF220573089F19A0037B31A /* Main.html */ = {
+			isa = PBXVariantGroup;
+			children = (
+				FFF220583089F19A0037B31A /* Base */,
+			);
+			name = Main.html;
+			sourceTree = "<group>";
+		};
+		FFF220623089F19A0037B31A /* Main.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				FFF220633089F19A0037B31A /* Base */,
+			);
+			name = Main.storyboard;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		FFF220743089F19B0037B31A /* Debug configuration for PBXProject "allai" */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MACOSX_DEPLOYMENT_TARGET = 26.6;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		FFF220753089F19B0037B31A /* Release configuration for PBXProject "allai" */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MACOSX_DEPLOYMENT_TARGET = 26.6;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = macosx;
+				SWIFT_COMPILATION_MODE = wholemodule;
+			};
+			name = Release;
+		};
+		FFF220773089F19B0037B31A /* Debug configuration for PBXNativeTarget "allai Extension" */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_APP_SANDBOX = YES;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_USER_SELECTED_FILES = readonly;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "allai Extension/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "allai Extension";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@executable_path/../../../../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 12.0;
+				MARKETING_VERSION = 1.0;
+				OTHER_LDFLAGS = (
+					"-framework",
+					SafariServices,
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = design.allai.allai.extension;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		FFF220783089F19B0037B31A /* Release configuration for PBXNativeTarget "allai Extension" */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_APP_SANDBOX = YES;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_USER_SELECTED_FILES = readonly;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "allai Extension/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "allai Extension";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@executable_path/../../../../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 12.0;
+				MARKETING_VERSION = 1.0;
+				OTHER_LDFLAGS = (
+					"-framework",
+					SafariServices,
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = design.allai.allai.extension;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		FFF2207B3089F19B0037B31A /* Debug configuration for PBXNativeTarget "allai" */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_APP_SANDBOX = YES;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_OUTGOING_NETWORK_CONNECTIONS = YES;
+				ENABLE_USER_SELECTED_FILES = readonly;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = allai/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = allai;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INFOPLIST_KEY_NSMainStoryboardFile = Main;
+				INFOPLIST_KEY_NSPrincipalClass = NSApplication;
+				INFOPLIST_KEY_NSViewGestureRecognizerIsExclusive = NO;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				OTHER_LDFLAGS = (
+					"-framework",
+					SafariServices,
+					"-framework",
+					WebKit,
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = design.allai.allai;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				REGISTER_APP_GROUPS = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		FFF2207C3089F19B0037B31A /* Release configuration for PBXNativeTarget "allai" */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_APP_SANDBOX = YES;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_OUTGOING_NETWORK_CONNECTIONS = YES;
+				ENABLE_USER_SELECTED_FILES = readonly;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = allai/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = allai;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INFOPLIST_KEY_NSMainStoryboardFile = Main;
+				INFOPLIST_KEY_NSPrincipalClass = NSApplication;
+				INFOPLIST_KEY_NSViewGestureRecognizerIsExclusive = NO;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				OTHER_LDFLAGS = (
+					"-framework",
+					SafariServices,
+					"-framework",
+					WebKit,
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = design.allai.allai;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				REGISTER_APP_GROUPS = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		FFF2204C3089F19A0037B31A /* Build configuration list for PBXProject "allai" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				FFF220743089F19B0037B31A /* Debug configuration for PBXProject "allai" */,
+				FFF220753089F19B0037B31A /* Release configuration for PBXProject "allai" */,
+			);
+			defaultConfigurationName = Release;
+		};
+		FFF220763089F19B0037B31A /* Build configuration list for PBXNativeTarget "allai Extension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				FFF220773089F19B0037B31A /* Debug configuration for PBXNativeTarget "allai Extension" */,
+				FFF220783089F19B0037B31A /* Release configuration for PBXNativeTarget "allai Extension" */,
+			);
+			defaultConfigurationName = Release;
+		};
+		FFF2207A3089F19B0037B31A /* Build configuration list for PBXNativeTarget "allai" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				FFF2207B3089F19B0037B31A /* Debug configuration for PBXNativeTarget "allai" */,
+				FFF2207C3089F19B0037B31A /* Release configuration for PBXNativeTarget "allai" */,
+			);
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = FFF220493089F19A0037B31A /* Project object */;
+	validationLevel = 1;
+}
