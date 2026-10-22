@@ -32,6 +32,7 @@ import { parse as parseYaml } from "yaml";
 export const CATEGORIES = [
   "Website Design",
   "Product Design",
+  "Illustration",
   "Reference Material",
   "Articles",
   "Products",

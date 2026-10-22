@@ -103,7 +103,7 @@ the reload icon on the card after editing a file.
 - **On X:** right-click the image → **Add to allai**. The form knows the post: handle, name, text, permalink, the timestamp, and the original-resolution file (`name=orig`, not the feed's `small`).
 - **Anywhere else:** right-click an image → **Add to allai** sends the image with the page's title, description and author. Right-click the page (or click the toolbar icon) → **Add page to allai** sends the page with no image; `npm run sync` records the page itself, as it does for clipper notes.
 - **What I like** is the one required field. One to three lines on the specific thing worth keeping: not "nice", but "the pricing table uses one accent colour and it's on the number, not the button". That line becomes the card's note on the site, the file name of the image in every moodboard export, and the brief the AI annotator reads.
-- **Category** is the fixed six. **Style** is free tags, comma-separated. **Projects** are client project names (`caura, crucial.design`); the last value you used is prefilled next time. **Publish** puts it on allai.design at the next sync.
+- **Category** is the fixed list (seven today). **Style** is free tags, comma-separated. **Projects** are client project names (`caura, crucial.design`); the last value you used is prefilled next time. **Publish** puts it on allai.design at the next sync.
 - **Enter** saves, Shift+Enter makes a new line, **Esc** closes.
 
 The form shows "Saved · <note name>" and closes. Open the note in Obsidian if

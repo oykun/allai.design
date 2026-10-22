@@ -19,7 +19,7 @@ it and the note lands in the vault in the exact shape `npm run sync` and
    dropdown (it won't auto-select; most tweets aren't allai material).
 2. Fill the properties that need you:
    - **category**: one of `Website Design` / `Product Design` /
-     `Reference Material` / `Articles` / `Products` / `Skills`
+     `Illustration` / `Reference Material` / `Articles` / `Products` / `Skills`
    - **style**: anything useful (`Dark`, `Typographic`, `Bento`, …) — it becomes
      the Style filter on the site
    - **projects**: the client projects this is a reference for, as wikilinks:
