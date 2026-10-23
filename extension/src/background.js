@@ -34,12 +34,19 @@ const MENU = "allai";
 // an image when the click was on one, the page (or the right-clicked post on
 // X, video included) otherwise.
 async function installMenus() {
-  await api.contextMenus.removeAll();
-  api.contextMenus.create({
-    id: MENU,
-    title: "Add to AllAI",
-    contexts: ["image", "video", "page", "frame", "selection", "link"],
-  });
+  try {
+    await api.contextMenus.removeAll();
+  } catch (err) {
+    console.warn("allai: contextMenus.removeAll failed", err);
+  }
+  try {
+    api.contextMenus.create({ id: MENU, title: "Add to AllAI", contexts: ["image", "page", "frame", "selection", "link"] }, () => {
+      const err = api.runtime.lastError;
+      if (err) console.error("allai: could not create the menu item", err.message || err);
+    });
+  } catch (err) {
+    console.error("allai: could not create the menu item", err);
+  }
 }
 
 /** Did the right-click land on a picture? Chrome and Safari both report mediaType. */
@@ -52,6 +59,7 @@ function clickedImage(info) {
 // they are (re)created every time the background script starts. Idempotent.
 installMenus().catch(console.error);
 api.runtime.onInstalled.addListener(() => installMenus().catch(console.error));
+api.runtime.onStartup?.addListener(() => installMenus().catch(console.error));
 
 api.contextMenus.onClicked.addListener((info, tab) => capture(info, tab).catch(console.error));
 api.action?.onClicked.addListener((tab) =>
