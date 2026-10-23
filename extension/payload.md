@@ -12,6 +12,7 @@ it is specific to the local receiver.
   "page": "https://x.com/home",
   "title": "Everyone at Mintlify builds with agents now. We built Mentha…",
   "image": "https://pbs.twimg.com/media/HUci8QWXoAAq7WC?format=jpg&name=orig",
+  "images": ["https://pbs.twimg.com/media/HUci8QWXoAAq7WC?format=jpg&name=orig"],
   "imageAlt": "Image",
   "author": "@faydkr",
   "authorName": "Fayd",
@@ -40,6 +41,7 @@ What the page gave us (read by `content.js`, best effort):
 | `page` | no | Where the capture happened (the feed, a search page). Equals `source` on a plain page. |
 | `title` | no | Prefilled from the post's first line or the page title; the person can edit it in the form. Becomes the note's file name. |
 | `image` | no | Full-resolution URL of the clicked image (`name=orig` on X). Empty for "Add page to allai". |
+| `images` | no | Every picture of the post, full resolution, the clicked one first (an X gallery is one item). The receiver downloads each into the item's folder and links them all in the note; `image` stays the cover. |
 | `imageAlt` | no | The image's alt text, used as the Markdown alt. |
 | `author` | no | `@handle` on X; empty elsewhere. |
 | `authorName` | no | Display name on X; `<meta name="author">` elsewhere. |
@@ -76,6 +78,7 @@ Envelope, added by the background script:
   "note": "/Users/you/Obsidian/_AI OS/allai/inbox/Everyone at Mintlify builds with agents now.md",
   "noteName": "Everyone at Mintlify builds with agents now",
   "image": "/Users/you/Obsidian/_AI OS/allai/inbox/4e8596a29abe/everyone-at-mintlify-builds-with-agents-now.jpg",
+  "images": ["/Users/you/Obsidian/_AI OS/allai/inbox/4e8596a29abe/everyone-at-mintlify-builds-with-agents-now.jpg"],
   "bytes": 92786,
   "warnings": []
 }

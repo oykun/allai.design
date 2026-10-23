@@ -9,7 +9,7 @@
  * Where things land (all under the one folder Claude may write in):
  *
  *   ~/Obsidian/_AI OS/allai/inbox/<title>.md            the note
- *   ~/Obsidian/_AI OS/allai/inbox/<id>/<slug>.<ext>     the image
+ *   ~/Obsidian/_AI OS/allai/inbox/<id>/<slug>.<ext>     the image (a gallery: <slug>.<ext>, <slug>-2.<ext>, …)
  *
  * `<id>` is the same twelve-character hash of the source URL that
  * scripts/lib/vault.mjs gives every item, so a capture and its note agree.
@@ -135,6 +135,14 @@ function normalize(payload) {
 
   const image = asText(payload.image);
   if (image && !isHttp(image)) throw new BadRequest("'image' must be an http(s) URL when present");
+  // Every picture of the post, the cover first. One image is a gallery of one.
+  const images = [];
+  for (const u of [image, ...(Array.isArray(payload.images) ? payload.images : [])].map(asText)) {
+    if (!u) continue;
+    if (!isHttp(u)) throw new BadRequest("'images' must be http(s) URLs");
+    if (!images.includes(u)) images.push(u);
+  }
+  if (images.length > 20) throw new BadRequest("'images': at most 20 per capture");
 
   const category = asText(payload.category);
   if (category && !CATEGORIES.includes(category)) {
@@ -157,7 +165,8 @@ function normalize(payload) {
     id: idFor(source),
     source,
     page,
-    image,
+    image: images[0] || "",
+    images,
     imageAlt: asText(payload.imageAlt),
     title,
     why,
@@ -174,7 +183,7 @@ function normalize(payload) {
   };
 }
 
-function renderNote(c, savedRel) {
+function renderNote(c, savedRels) {
   const frontmatter = {
     title: c.title,
     source: c.source,
@@ -191,15 +200,16 @@ function renderNote(c, savedRel) {
   };
 
   const alt = (c.imageAlt || c.title).replace(/[\[\]]/g, "");
-  const imageLink = savedRel
-    ? `![${alt}](${encodeURI(savedRel).replace(/[()]/g, (ch) => (ch === "(" ? "%28" : "%29"))})`
-    : c.image
-      ? `![${alt}](${c.image})`
-      : "";
+  // One line per picture: the downloaded copy when there is one, else the remote URL.
+  const imageLinks = c.images.map((remote, i) => {
+    const rel = savedRels[i];
+    const label = c.images.length > 1 ? `${alt} ${i + 1}` : alt;
+    return rel ? `![${label}](${encodeURI(rel).replace(/[()]/g, (ch) => (ch === "(" ? "%28" : "%29"))})` : `![${label}](${remote})`;
+  });
   const where = c.page !== c.source ? ` from ${c.page}` : "";
   const via = c.client?.browser ? ` (${c.client.browser})` : "";
 
-  const clipped = [c.text, imageLink, `_Captured${where} with the allai extension${via} on ${today()}._`]
+  const clipped = [c.text, imageLinks.join("\n\n"), `_Captured${where} with the allai extension${via} on ${today()}._`]
     .filter(Boolean)
     .join("\n\n");
 
@@ -212,30 +222,35 @@ async function handleCapture(payload) {
 
   await mkdir(INBOX_DIR, { recursive: true });
 
-  let savedRel = null;
+  // Download every picture into <id>/: <slug>.<ext>, <slug>-2.<ext>, … (the cover keeps the
+  // plain name so a one-image capture looks exactly as before).
+  const savedRels = [];
   let bytes = 0;
-  if (c.image) {
-    const dir = join(INBOX_DIR, c.id);
-    const base = slugify(c.title).slice(0, 60).replace(/-+$/, "") || "image";
+  const dir = join(INBOX_DIR, c.id);
+  const base = slugify(c.title).slice(0, 60).replace(/-+$/, "") || "image";
+  for (const [i, url] of c.images.entries()) {
     try {
-      const saved = await downloadImage(c.image, dir, base, c.page);
-      savedRel = `${c.id}/${saved.file.slice(dir.length + 1)}`;
-      bytes = saved.bytes;
+      const saved = await downloadImage(url, dir, i ? `${base}-${i + 1}` : base, c.page);
+      savedRels.push(`${c.id}/${saved.file.slice(dir.length + 1)}`);
+      bytes += saved.bytes;
     } catch (err) {
-      warnings.push(`image not downloaded: ${err.message}; the note links the remote URL instead`);
+      savedRels.push(null);
+      warnings.push(`image${c.images.length > 1 ? ` ${i + 1}` : ""} not downloaded: ${err.message}; the note links the remote URL instead`);
     }
   }
 
   const notePath = await uniquePath(INBOX_DIR, noteFileName(c.title, c.id), ".md");
   if (!notePath.startsWith(INBOX_DIR + "/")) throw new Error("refusing to write outside the inbox"); // belt and braces
-  await writeFile(notePath, renderNote(c, savedRel), { flag: "wx" });
+  await writeFile(notePath, renderNote(c, savedRels), { flag: "wx" });
 
+  const savedPaths = savedRels.map((rel) => (rel ? join(INBOX_DIR, rel) : null));
   return {
     ok: true,
     id: c.id,
     note: notePath,
     noteName: notePath.slice(INBOX_DIR.length + 1, -3),
-    image: savedRel ? join(INBOX_DIR, savedRel) : null,
+    image: savedPaths[0] || null,
+    images: savedPaths,
     bytes,
     warnings,
   };
@@ -295,7 +310,8 @@ async function route(req, res) {
     }
     try {
       const result = await handleCapture(payload);
-      const kb = result.bytes ? `, image ${Math.round(result.bytes / 1024)} KB` : "";
+      const n = result.images.filter(Boolean).length;
+      const kb = result.bytes ? `, ${n > 1 ? `${n} images` : "image"} ${Math.round(result.bytes / 1024)} KB` : "";
       console.log(`${stamp()} + ${result.noteName}${kb}${result.warnings.length ? `  ! ${result.warnings.join("; ")}` : ""}`);
       return json(res, 201, result);
     } catch (err) {

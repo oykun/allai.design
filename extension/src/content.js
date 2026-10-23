@@ -154,6 +154,18 @@
         out.image = poster;
         out.imageAlt = "Video poster";
       }
+      // Every picture of the post (a gallery is one item, not four): the clicked one first.
+      // Avatars live under /profile_images/, post media under /media/.
+      const gallery = [];
+      for (const el of article.querySelectorAll('img[src*="pbs.twimg.com/media/"]')) {
+        const full = fullResX(el.currentSrc || el.src);
+        if (full && !gallery.includes(full)) gallery.push(full);
+      }
+      if (gallery.length) {
+        const clicked = img ? fullResX(img.currentSrc || img.src) : "";
+        out.images = clicked && gallery.includes(clicked) ? [clicked, ...gallery.filter((u) => u !== clicked)] : gallery;
+        if (!out.image && message.menu !== "image") out.image = out.images[0];
+      }
     }
 
     const who = out.authorName || out.author || "";
