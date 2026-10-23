@@ -18,6 +18,13 @@
   const api = globalThis.browser ?? globalThis.chrome;
   const isX = /(^|\.)(x|twitter)\.com$/i.test(location.hostname);
 
+  // The element under the last right-click. X's video player swallows the browser menu, so
+  // a video post is captured by right-clicking its text and picking "Add page to allai";
+  // this is how that click still finds the post in the feed. preventDefault on X's side
+  // stops the menu, not the event, so the listener always runs.
+  let lastRightClick = null;
+  document.addEventListener("contextmenu", (e) => { lastRightClick = { target: e.target, at: Date.now() }; }, true);
+
   api.runtime.onMessage.addListener((message, _sender, sendResponse) => {
     if (message?.type !== "allai:collect") return false;
     try {
@@ -93,8 +100,12 @@
     const out = {};
     const pageStatus = statusFromUrl(location.href);
 
-    // The post around the clicked image; on a post's own page, the main post.
+    // The post around the clicked image, else the post that was right-clicked (any part of
+    // it: text, author, the player), else, on a post's own page, the main post.
     let article = img?.closest("article") || null;
+    if (!article && message.menu === "page" && lastRightClick && Date.now() - lastRightClick.at < 15000) {
+      article = lastRightClick.target?.closest?.("article") || null;
+    }
     if (!article && message.menu === "page" && pageStatus) {
       article = document.querySelector('article[data-testid="tweet"]');
     }
@@ -136,6 +147,13 @@
       if (text) out.text = text.innerText.trim();
       const when = article.querySelector("time")?.getAttribute("datetime");
       if (when) out.published = when.slice(0, 10);
+      // A video post, captured without an image: send the player's poster frame so the note
+      // has a picture right away. The sync fetches the video itself when the item is published.
+      const poster = article.querySelector("video[poster]")?.getAttribute("poster");
+      if (poster && message.menu !== "image") {
+        out.image = poster;
+        out.imageAlt = "Video poster";
+      }
     }
 
     const who = out.authorName || out.author || "";
