@@ -1,8 +1,8 @@
 /**
  * allai — background script (a service worker in Chrome, the same in Safari).
  *
- * Owns the two context-menu items, asks the page for the context around the
- * clicked image, and is the only part of the extension that talks to the
+ * Owns the one context-menu item ("Add to AllAI": an image when you clicked one,
+ * the page otherwise), asks the page for the context around the clicked image, and is the only part of the extension that talks to the
  * receiver (`npm run inbox` in the allai.design repo). Pages never call the
  * receiver themselves: X's content-security policy would block it, and keeping
  * one caller makes the later switch to the platform API a one-line change.
@@ -24,20 +24,28 @@ const FALLBACK_CATEGORIES = [
   "Skills",
 ];
 
-const MENU_IMAGE = "allai-image";
-const MENU_PAGE = "allai-page";
+const MENU = "allai";
 
 // ---------------------------------------------------------------------------
-// Menus
+// Menu
 
+// One item, so browsers show it at the top level instead of nesting two under
+// the extension's name. What it captures depends on where the click landed:
+// an image when the click was on one, the page (or the right-clicked post on
+// X, video included) otherwise.
 async function installMenus() {
   await api.contextMenus.removeAll();
-  api.contextMenus.create({ id: MENU_IMAGE, title: "Add to allai", contexts: ["image"] });
   api.contextMenus.create({
-    id: MENU_PAGE,
-    title: "Add page to allai",
-    contexts: ["page", "frame", "selection", "link"],
+    id: MENU,
+    title: "Add to AllAI",
+    contexts: ["image", "video", "page", "frame", "selection", "link"],
   });
+}
+
+/** Did the right-click land on a picture? Chrome and Safari both report mediaType. */
+function clickedImage(info) {
+  if (info.mediaType) return info.mediaType === "image";
+  return Boolean(info.srcUrl) && /^https?:\/\//i.test(info.srcUrl);
 }
 
 // Chrome keeps menus between service-worker restarts; Safari does not, so
@@ -47,7 +55,7 @@ api.runtime.onInstalled.addListener(() => installMenus().catch(console.error));
 
 api.contextMenus.onClicked.addListener((info, tab) => capture(info, tab).catch(console.error));
 api.action?.onClicked.addListener((tab) =>
-  capture({ menuItemId: MENU_PAGE, pageUrl: tab?.url || "", frameId: 0 }, tab).catch(console.error),
+  capture({ menuItemId: MENU, pageUrl: tab?.url || "", frameId: 0 }, tab).catch(console.error),
 );
 
 // ---------------------------------------------------------------------------
@@ -146,8 +154,8 @@ async function capture(info, tab) {
   }
   const request = {
     type: "allai:collect",
-    menu: info.menuItemId === MENU_IMAGE ? "image" : "page",
-    srcUrl: info.srcUrl || "",
+    menu: clickedImage(info) ? "image" : "page",
+    srcUrl: clickedImage(info) ? info.srcUrl || "" : "",
     pageUrl: info.pageUrl || tab?.url || "",
     title: tab?.title || "",
     config: await config(),

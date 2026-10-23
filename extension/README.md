@@ -1,6 +1,6 @@
 # The allai browser extension
 
-Right-click an image in the X feed, pick **Add to allai**, write one line on
+Right-click an image in the X feed, pick **Add to AllAI**, write one line on
 what you like, press Enter. A note with the image lands in your Obsidian vault
 in the exact shape the allai.design pipeline reads, so `npm run sync`,
 `npm run moodboard` and `npm run annotate` pick it up unchanged.
@@ -9,7 +9,7 @@ The Web Clipper template in `clipper/` captures whole pages. This is for the
 other 90% of curation: a single image in a feed, where the clipper can't reach.
 
 ```
-right-click image ──▶ form (What I like, category, style, projects, publish)
+right-click ───────▶ form (What I like, category, style, projects, publish)
                            │ POST http://127.0.0.1:7711/capture
                            ▼
                  npm run inbox  (a 300-line Node server on your Mac)
@@ -80,6 +80,7 @@ You need Xcode (free, from the App Store), once.
 2. In Safari, turn on the Develop menu if you haven't: Settings → Advanced → **Show features for web developers**.
 3. Develop → **Allow Unsigned Extensions** (asks for your password). Safari forgets this when it quits, so you'll redo it after every Safari restart. That is the only cost of staying unsigned.
 4. Settings → Extensions → tick **allai**. On the first right-click on x.com Safari asks whether to allow the extension there; choose **Always Allow on This Website** (or on every website, if you capture elsewhere too).
+5. After a rebuild, quit and reopen Safari once: it keeps the menu items of the previous build around until then, so you'd see "allai" two or three times in the context menu.
 
 **Signed, for daily use:** Safari keeps a signed extension enabled across
 restarts. Signing needs an Apple Developer Program membership (the paid one).
@@ -100,10 +101,12 @@ the reload icon on the card after editing a file.
 
 ## Daily use
 
-- **On X:** right-click the image → **Add to allai**. The form knows the post: handle, name, text, permalink, the timestamp, and the original-resolution file (`name=orig`, not the feed's `small`).
-- **A post with several pictures:** right-click any one of them → **Add to allai**. The whole gallery is one item: every picture is downloaded into the item's folder and linked in the note, the one you clicked is the cover (`image`), and the form says "· 4 images".
-- **A video on X:** the player draws X's own menu, so right-click the post's *text* instead → **Add page to allai**. The form knows which post you clicked, in the feed too; the note gets the video's poster frame as its image, and `npm run sync` fetches the video itself when you publish.
-- **Anywhere else:** right-click an image → **Add to allai** sends the image with the page's title, description and author. Right-click the page (or click the toolbar icon) → **Add page to allai** sends the page with no image; `npm run sync` records the page itself, as it does for clipper notes.
+There is one menu item, **Add to AllAI**, everywhere. It captures the image when you right-clicked one, otherwise the page (on X: the post you right-clicked).
+
+- **On X:** right-click the image → **Add to AllAI**. The form knows the post: handle, name, text, permalink, the timestamp, and the original-resolution file (`name=orig`, not the feed's `small`).
+- **A post with several pictures:** right-click any one of them → **Add to AllAI**. The whole gallery is one item: every picture is downloaded into the item's folder and linked in the note, the one you clicked is the cover (`image`), and the form says "· 4 images".
+- **A video on X:** the player draws X's own menu, so right-click the post's *text* instead → **Add to AllAI**. The form knows which post you clicked, in the feed too; the note gets the video's poster frame as its image, and `npm run sync` fetches the video itself when you publish.
+- **Anywhere else:** right-click an image → **Add to AllAI** sends the image with the page's title, description and author. Right-click the page (or click the toolbar icon) sends the page with no image; `npm run sync` records the page itself, as it does for clipper notes.
 - **What I like** is the one required field. One to three lines on the specific thing worth keeping: not "nice", but "the pricing table uses one accent colour and it's on the number, not the button". That line becomes the card's note on the site, the file name of the image in every moodboard export, and the brief the AI annotator reads.
 - **Category** is the fixed list (seven today). **Style** is free tags, comma-separated. **Projects** are client project names (`caura, crucial.design`); the last value you used is prefilled next time. **Publish** puts it on allai.design at the next sync.
 - **Enter** saves, Shift+Enter makes a new line, **Esc** closes.
@@ -126,7 +129,7 @@ field, the receiver's address. Only change it if you changed
 ## Troubleshooting
 
 - **"Can't reach the receiver"** in the form → it isn't running. `npm run inbox` in a terminal, or `npm run inbox -- --status` to see what the login item is doing (log at `~/Library/Logs/allai-inbox.log`).
-- **Safari shows no "Add to allai" in the menu** → the extension is off (Settings → Extensions), or it's an unsigned build and Safari was restarted: Develop → Allow Unsigned Extensions again.
+- **Safari shows no "Add to AllAI" in the menu** → the extension is off (Settings → Extensions), or it's an unsigned build and Safari was restarted: Develop → Allow Unsigned Extensions again.
 - **The note was written but there is no image file** → the form said so in brackets. The source refused the download (some CDNs do). The note links the remote image instead, and `npm run sync` hosts the media itself when you publish, so nothing is lost.
 - **Two notes for the same post** → you captured it twice; the second is named `… 2.md`. The sync shows only one per source URL and tells you about the other.
 - **`npm run sync -- --dry` doesn't list the note** → the inbox folder isn't under one of the vault folders the scripts read (`ALLAI_VAULT_DIRS`). The receiver prints a warning about this when it starts.
@@ -135,7 +138,7 @@ field, the receiver's address. Only change it if you changed
 
 Everything is in `src/`; there is nothing to compile.
 
-- `background.js` — the context menu, and the only code that calls the receiver.
+- `background.js` — the one context-menu item, and the only code that calls the receiver.
 - `content.js` — runs in the page; reads the post around the clicked image (on X) or the page's meta tags, and shows the form.
 - `form.js` — the form itself, drawn in a shadow root so the page's styles and ours never touch. Also used by `popup.html`, the fallback window for pages where nothing can be injected (PDFs, browser pages).
 - `options.html/js` — the settings page.

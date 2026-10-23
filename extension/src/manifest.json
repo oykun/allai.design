@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "allai",
   "version": "1.0.0",
-  "description": "Right-click an image (or a page) and send it to your allai.design inbox with one line on what you like.",
+  "description": "Right-click an image, a post or a page, choose Add to AllAI, and it lands in your allai.design inbox with one line on what you like.",
   "icons": {
     "48": "icons/icon-48.png",
     "96": "icons/icon-96.png",
@@ -22,7 +22,7 @@
     }
   ],
   "action": {
-    "default_title": "Add page to allai"
+    "default_title": "Add to AllAI"
   },
   "options_ui": {
     "page": "options.html"
