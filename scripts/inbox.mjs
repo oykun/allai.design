@@ -41,6 +41,7 @@ import { promisify } from "node:util";
 import { stringify as toYaml } from "yaml";
 import { CATEGORIES, idFor, slugify, vaultDirs, expandHome, cleanTitle, readItems, styleVocabulary, titleCase } from "./lib/vault.mjs";
 import { EXT_BY_MIME } from "./lib/r2.mjs";
+import { tweetId, fetchTweet } from "./lib/x.mjs";
 
 const run = promisify(execFile);
 
@@ -49,6 +50,9 @@ const PORT = Number(process.env.ALLAI_INBOX_PORT) || 7711;
 const INBOX_DIR = resolve(expandHome(process.env.ALLAI_INBOX_DIR || "~/Obsidian/_AI OS/allai/inbox"));
 const MAX_BODY = 1024 * 1024; // a capture is text and URLs; images are fetched, not posted
 const MAX_IMAGE = 50 * 1024 * 1024;
+const MAX_VIDEO = 200 * 1024 * 1024;
+// The extension waits 30 s for a save; videos get what's left after the pictures.
+const VIDEO_BUDGET_MS = 20_000;
 
 const SCRIPT = fileURLToPath(import.meta.url);
 const REPO = resolve(dirname(SCRIPT), "..");
@@ -188,6 +192,42 @@ async function downloadImage(url, dir, baseName, referer) {
   return { file, bytes: buffer.byteLength };
 }
 
+/**
+ * Every video or GIF in an X post, best mp4 of each, read from the same
+ * syndication endpoint the sync uses. X's player hides the file from the page,
+ * so the receiver fetches it here rather than the extension.
+ */
+async function xVideos(source) {
+  const id = tweetId(source);
+  if (!id) return [];
+  const tweet = await fetchTweet(id);
+  const out = [];
+  for (const m of tweet.mediaDetails || []) {
+    if (m.type !== "video" && m.type !== "animated_gif") continue;
+    const best = (m.video_info?.variants || [])
+      .filter((v) => v.content_type === "video/mp4")
+      .sort((a, b) => (b.bitrate || 0) - (a.bitrate || 0))[0];
+    if (best) out.push(best.url);
+  }
+  return out;
+}
+
+async function downloadVideo(url, dir, baseName, deadline) {
+  const ms = deadline - Date.now();
+  if (ms < 1000) throw new Error("out of time (the sync still hosts it when published)");
+  const res = await fetch(url, { headers: { "User-Agent": "Mozilla/5.0" }, signal: AbortSignal.timeout(ms) });
+  if (!res.ok) throw new Error(`X returned ${res.status}`);
+  const length = Number(res.headers.get("content-length") || 0);
+  if (length > MAX_VIDEO) throw new Error(`too large (${Math.round(length / 1048576)} MB)`);
+  const buffer = Buffer.from(await res.arrayBuffer());
+  if (!buffer.byteLength) throw new Error("empty response");
+  if (buffer.byteLength > MAX_VIDEO) throw new Error(`too large (${Math.round(buffer.byteLength / 1048576)} MB)`);
+  await mkdir(dir, { recursive: true });
+  const file = await uniquePath(dir, baseName, ".mp4");
+  await writeFile(file, buffer);
+  return { file, bytes: buffer.byteLength };
+}
+
 /** Validates a payload and turns it into the note's parts. Throws BadRequest on bad input. */
 function normalize(payload) {
   if (!payload || typeof payload !== "object" || Array.isArray(payload)) throw new BadRequest("body must be a JSON object");
@@ -249,7 +289,7 @@ function normalize(payload) {
   };
 }
 
-function renderNote(c, savedRels) {
+function renderNote(c, savedRels, videoRels = []) {
   const frontmatter = {
     title: c.title,
     source: c.source,
@@ -275,7 +315,10 @@ function renderNote(c, savedRels) {
   const where = c.page !== c.source ? ` from ${c.page}` : "";
   const via = c.client?.browser ? ` (${c.client.browser})` : "";
 
-  const clipped = [c.text, imageLinks.join("\n\n"), `_Captured${where} with the allai extension${via} on ${today()}._`]
+  // Local clips, embedded so Obsidian plays them. The `video` frontmatter key stays the
+  // sync's: it points at the R2 copy once the item is published.
+  const videoLinks = videoRels.map((rel, i) => `![${videoRels.length > 1 ? `Video ${i + 1}` : "Video"}](${encodeURI(rel).replace(/[()]/g, (ch) => (ch === "(" ? "%28" : "%29"))})`);
+  const clipped = [c.text, imageLinks.join("\n\n"), videoLinks.join("\n\n"), `_Captured${where} with the allai extension${via} on ${today()}._`]
     .filter(Boolean)
     .join("\n\n");
 
@@ -310,9 +353,30 @@ async function handleCapture(payload) {
     }
   }
 
+  // An X post's videos: <slug>.mp4, <slug>-2.mp4, … beside the pictures.
+  const videoRels = [];
+  if (c.siteKind === "x") {
+    const deadline = Date.now() + VIDEO_BUDGET_MS;
+    let urls = [];
+    try {
+      urls = await xVideos(c.source);
+    } catch (err) {
+      if (/video/i.test(c.imageAlt || "")) warnings.push(`video not saved: ${err.message}`);
+    }
+    for (const [i, url] of urls.entries()) {
+      try {
+        const saved = await downloadVideo(url, dir, i ? `${base}-${i + 1}` : base, deadline);
+        videoRels.push(`${c.id}/${saved.file.slice(dir.length + 1)}`);
+        bytes += saved.bytes;
+      } catch (err) {
+        warnings.push(`video${urls.length > 1 ? ` ${i + 1}` : ""} not saved: ${err.message}`);
+      }
+    }
+  }
+
   const notePath = await uniquePath(INBOX_DIR, noteFileName(c.title, c.id), ".md");
   if (!notePath.startsWith(INBOX_DIR + "/")) throw new Error("refusing to write outside the inbox"); // belt and braces
-  await writeFile(notePath, renderNote(c, savedRels), { flag: "wx" });
+  await writeFile(notePath, renderNote(c, savedRels, videoRels), { flag: "wx" });
   vocabCache.at = 0; // the next form shows this capture's styles and projects
 
   const savedPaths = savedRels.map((rel) => (rel ? join(INBOX_DIR, rel) : null));
@@ -323,6 +387,7 @@ async function handleCapture(payload) {
     noteName: notePath.slice(INBOX_DIR.length + 1, -3),
     image: savedPaths[0] || null,
     images: savedPaths,
+    videos: videoRels.map((rel) => join(INBOX_DIR, rel)),
     bytes,
     warnings,
   };
@@ -384,7 +449,7 @@ async function route(req, res) {
     try {
       const result = await handleCapture(payload);
       const n = result.images.filter(Boolean).length;
-      const kb = result.bytes ? `, ${n > 1 ? `${n} images` : "image"} ${Math.round(result.bytes / 1024)} KB` : "";
+      const kb = result.bytes ? `, ${[n && (n > 1 ? `${n} images` : "image"), result.videos.length && (result.videos.length > 1 ? `${result.videos.length} videos` : "video")].filter(Boolean).join(" + ")} ${Math.round(result.bytes / 1024)} KB` : "";
       console.log(`${stamp()} + ${result.noteName}${kb}${result.warnings.length ? `  ! ${result.warnings.join("; ")}` : ""}`);
       return json(res, 201, result);
     } catch (err) {

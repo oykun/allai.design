@@ -137,6 +137,12 @@ Everyone at Mintlify builds with agents now. …
 _Captured from https://x.com/home with the allai extension (chrome) on 2026-10-22._
 ```
 
+For an X post with video or GIFs, the receiver also fetches each clip's best mp4
+from X (the same syndication endpoint the sync uses) into `<id>/<slug>.mp4`,
+`<slug>-2.mp4`, … and embeds it under `## Clipped` as `![Video](…)`. The
+response lists them in `videos`. The `video` frontmatter key is left alone: it
+belongs to the sync, which points it at the R2 copy.
+
 `image` in the frontmatter stays the remote URL on purpose: `npm run sync`
 replaces it with the R2 copy once the item is published, and
 `npm run moodboard` fetches it over HTTP. The downloaded file beside the note
