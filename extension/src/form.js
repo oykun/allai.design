@@ -123,7 +123,7 @@
       el("option", { value: "", text: "— pick one —" }),
       ...categories.map((c) => el("option", { value: c, text: c })),
     ]);
-    const publish = el("input", { type: "checkbox" });
+    const publish = el("input", { type: "checkbox", checked: true }); // on by default: most captures are for the site
     const style = el("input", { type: "text", placeholder: "Dark, Typographic, Bento", "aria-label": "Style" });
     const projects = el("input", { type: "text", placeholder: "crucial.design, caura", value: config.lastProjects || "", "aria-label": "Projects" });
     const status = el("div", { class: "status", text: config.online === false ? "Receiver not running — start it with: npm run inbox" : "" });
