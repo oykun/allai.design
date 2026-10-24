@@ -71,27 +71,45 @@ Settings, all optional, in the repo's `.env` (see `.env.example`):
 
 ## 2. Install in Safari
 
-Safari only runs web extensions wrapped in a Mac app, so there is a build step.
-You need Xcode (free, from the App Store), once.
+Safari only runs web extensions wrapped in a Mac app, so there is a build
+step. You need Xcode (free, from the App Store) and an Apple ID. A **free**
+Apple ID is enough: sign the build with its Personal Team and Safari keeps the
+extension on across restarts. No paid developer membership needed for your
+own Mac.
 
-**Unsigned, to try it or to develop:**
+**Signed, for daily use (do this):**
 
-1. `extension/build-safari.sh` — or open `extension/safari/allai/allai.xcodeproj` in Xcode and press Run. Either way the `allai` app opens once; you can close its window.
-2. In Safari, turn on the Develop menu if you haven't: Settings → Advanced → **Show features for web developers**.
-3. Develop → **Allow Unsigned Extensions** (asks for your password). Safari forgets this when it quits, so you'll redo it after every Safari restart. That is the only cost of staying unsigned.
-4. Settings → Extensions → tick **allai**. On the first right-click on x.com Safari asks whether to allow the extension there; choose **Always Allow on This Website** (or on every website, if you capture elsewhere too).
-5. After a rebuild, quit and reopen Safari once: it keeps the menu items of the previous build around until then, so you'd see "allai" two or three times in the context menu.
+1. Xcode → Settings → **Accounts** → **+** → Apple Account, and sign in. Your
+   name appears with a team called "Your Name (Personal Team)".
+2. Find that team's ten-character id. In Terminal:
+   `defaults read com.apple.dt.Xcode IDEProvisioningTeamByIdentifier | grep -A2 teamID`
+   (or pick the team once in the project's Signing & Capabilities and read
+   `DEVELOPMENT_TEAM` from the project file).
+3. Put it in the repo's `.env`: `ALLAI_APPLE_TEAM=ABCDE12345`.
+4. `extension/build-safari.sh`. It prints `signing: ABCDE12345`, builds, and
+   opens the `allai` app once, which registers the extension. Close the app's
+   window.
+5. Safari → Settings → **Extensions** → tick **allai**. On the first
+   right-click on x.com choose **Always Allow on This Website**.
 
-**Signed, for daily use:** Safari keeps a signed extension enabled across
-restarts. Signing needs an Apple Developer Program membership (the paid one).
+Check it worked: Safari → Settings → Developer → untick **Allow unsigned
+extensions**. If allai stays in the Extensions list, it's signed. The
+certificate Xcode creates lasts a year; rebuild after that.
 
-- In Xcode: select the project → each of the two targets (`allai`, `allai Extension`) → Signing & Capabilities → pick your Team. Press Run. Done; the extension stays on.
-- From the terminal: `extension/build-safari.sh <TEAM_ID>` (the ten-character id from developer.apple.com → Membership).
-- To hand the app to someone else, use Product → Archive → Distribute App → **Direct Distribution**, which signs with Developer ID and notarizes. They move `allai.app` to Applications and open it once.
+**Unsigned, to try it quickly:** Safari → Settings → **Developer** → tick
+**Allow unsigned extensions** (asks for your password) → **Add Temporary
+Extension…** → pick `extension/src`. No Xcode needed. Safari forgets both the
+switch and the extension every time it quits, so you redo those two steps
+after each restart. (The unsigned *app* from `build-safari.sh` without a team
+is not always picked up by Safari; the temporary route is more reliable.)
 
-If you rebuild, Safari picks up the new build on the next launch of the app
-(`open extension/safari/build/Build/Products/Release/allai.app`), sometimes
-after toggling the extension off and on.
+**Giving it to someone else:** Xcode → Product → Archive → Distribute App →
+**Direct Distribution** signs with a Developer ID and notarizes, which does
+need the paid Apple Developer Program. They move `allai.app` to Applications
+and open it once.
+
+After a rebuild, quit and reopen Safari once (Safari → Quit Safari, not just
+closing the window): it keeps the previous build's menu item until then.
 
 ## 3. Install in Chrome
 
