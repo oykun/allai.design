@@ -1,12 +1,105 @@
 [
   {
+    "id": "42ed04e3516a",
+    "title": "ascii + pixel crush",
+    "source": "@studiobakers",
+    "category": "Illustration",
+    "style": [
+      "Generative UI",
+      "Dark",
+      "Colourful"
+    ],
+    "sourceUrl": "https://x.com/studiobakers/status/2111049527797186726",
+    "imageUrl": "https://pub-d7686b7c26dd403187af8d3e6340fc6c.r2.dev/items/42ed04e3516a/ascii-pixel-crush.jpg",
+    "videoUrl": "",
+    "curationNote": "the abstract style",
+    "publishedDate": "2026-10-24"
+  },
+  {
+    "id": "f06af99ec495",
+    "title": "cards handhold",
+    "source": "@studiobakers",
+    "category": "",
+    "style": [
+      "Aura"
+    ],
+    "sourceUrl": "https://x.com/studiobakers/status/2113577421178024311",
+    "imageUrl": "https://pub-d7686b7c26dd403187af8d3e6340fc6c.r2.dev/items/f06af99ec495/cards-handhold.jpg",
+    "videoUrl": "",
+    "curationNote": "background aura",
+    "publishedDate": "2026-10-24"
+  },
+  {
+    "id": "a44fb3ced995",
+    "title": "Context.dev: Web Data API for AI Agents (Scrape, Search, Crawl)",
+    "source": "context.dev",
+    "category": "Website Design",
+    "style": [],
+    "sourceUrl": "https://www.context.dev/",
+    "imageUrl": "https://pub-d7686b7c26dd403187af8d3e6340fc6c.r2.dev/items/a44fb3ced995/context-dev-web-data-api-for-ai-agents-scrape-search-crawl.jpg",
+    "videoUrl": "https://pub-d7686b7c26dd403187af8d3e6340fc6c.r2.dev/items/a44fb3ced995/context-dev-web-data-api-for-ai-agents-scrape-search-crawl.mp4",
+    "curationNote": "the crisp colours and animated illustrations",
+    "publishedDate": "2026-10-24"
+  },
+  {
+    "id": "b69c38860ea2",
+    "title": "History",
+    "source": "x.com",
+    "category": "Illustration",
+    "style": [
+      "Generative UI",
+      "Dark"
+    ],
+    "sourceUrl": "https://x.com/i/history/bookmarks/1705105635459645811",
+    "imageUrl": "https://pub-d7686b7c26dd403187af8d3e6340fc6c.r2.dev/items/b69c38860ea2/history.jpg",
+    "videoUrl": "https://pub-d7686b7c26dd403187af8d3e6340fc6c.r2.dev/items/b69c38860ea2/history.mp4",
+    "curationNote": "I love this techie style with bright colors on dark background. It's just clean, it's sharp, it's modern, it's techie. tech",
+    "publishedDate": "2026-10-24"
+  },
+  {
+    "id": "1224d8078460",
+    "title": "hope brand",
+    "source": "@studiobakers",
+    "category": "",
+    "style": [],
+    "sourceUrl": "https://x.com/studiobakers/status/2113574905274933489",
+    "imageUrl": "https://pub-d7686b7c26dd403187af8d3e6340fc6c.r2.dev/items/1224d8078460/hope-brand.jpg",
+    "videoUrl": "",
+    "curationNote": "background and presentation",
+    "publishedDate": "2026-10-24"
+  },
+  {
+    "id": "8848f025fc81",
+    "title": "https://essential.com by https://s.engineering",
+    "source": "@s7rx_com",
+    "category": "",
+    "style": [],
+    "sourceUrl": "https://x.com/s7rx_com/status/2113980626659672327",
+    "imageUrl": "https://pub-d7686b7c26dd403187af8d3e6340fc6c.r2.dev/items/8848f025fc81/https-essential-com-by-https-s-engineering.jpg",
+    "videoUrl": "",
+    "curationNote": "colourful background and the typography. it is clean, modern and colourful.",
+    "publishedDate": "2026-10-24"
+  },
+  {
+    "id": "b1a022fe9342",
+    "title": "s.engineering",
+    "source": "s.engineering",
+    "category": "",
+    "style": [],
+    "sourceUrl": "https://s.engineering/",
+    "imageUrl": "https://pub-d7686b7c26dd403187af8d3e6340fc6c.r2.dev/items/b1a022fe9342/s-engineering.jpg",
+    "videoUrl": "https://pub-d7686b7c26dd403187af8d3e6340fc6c.r2.dev/items/b1a022fe9342/s-engineering.mp4",
+    "curationNote": "bright colours , background",
+    "publishedDate": "2026-10-24"
+  },
+  {
     "id": "1eb75fcc452c",
     "title": "early concepts for bem",
     "source": "@ayushsoni_io",
     "category": "Reference Material",
     "style": [
-      "dark",
-      "colourful"
+      "Dark",
+      "Colourful"
     ],
     "sourceUrl": "https://x.com/ayushsoni_io/status/2112170175940448611",
     "imageUrl": "https://pub-d7686b7c26dd403187af8d3e6340fc6c.r2.dev/items/1eb75fcc452c/early-concepts-for-bem.jpg",
@@ -213,21 +306,6 @@
     "imageUrl": "https://pub-d7686b7c26dd403187af8d3e6340fc6c.r2.dev/items/38f226247aee81f58d76f6e3b41b89f4/image.png",
     "videoUrl": "",
     "curationNote": "AI-generated UGC influencers that are unsettlingly close to photoreal — the hard problem is keeping one face consistent across shots, and the hero image actually pulls that off. But the landing page undersells its own claim: a single static face, zero proof of range across angles or scenes. Worth trying if you're testing synthetic UGC for ad creative; not a must-have until they show more than one frame.",
-    "publishedDate": "2026-06-30"
-  },
-  {
-    "id": "a06c424bd1fb",
-    "title": "Semaloop's live 'SPEAKING' status overlay",
-    "source": "semaloop.com",
-    "category": "Website Design",
-    "style": [
-      "Landing Page",
-      "Notifications"
-    ],
-    "sourceUrl": "https://semaloop.com/?ref=land-book.com",
-    "imageUrl": "https://pub-d7686b7c26dd403187af8d3e6340fc6c.r2.dev/items/38f226247aee817c869ef84cb6bbdc84/image.png",
-    "videoUrl": "",
-    "curationNote": "Semaloop's hero swaps the usual static dashboard mock for a live \"SPEAKING\" status pill pulsing over a phone screen — it shows the agent listening and acting instead of just promising it. That's the actual takeaway: the real-time status indicator is worth stealing for any voice or agent UI, regardless of what you're building. Worth trying if mobile QA is your bottleneck; the design itself isn't the product here.",
     "publishedDate": "2026-06-30"
   }
 ]
