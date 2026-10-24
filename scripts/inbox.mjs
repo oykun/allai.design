@@ -24,20 +24,22 @@
  * Env (see .env.example):
  *   ALLAI_INBOX_PORT   default 7711 — change it here and in the extension's settings
  *   ALLAI_INBOX_DIR    default ~/Obsidian/_AI OS/allai/inbox — must sit inside ALLAI_VAULT_DIRS
+ *   ALLAI_CLIENTS_DIR  default ~/Claude/projects/Crucial Design Operator/agency/clients — one folder
+ *                      per client project; the active ones become the form's project chips
  *
  * The request/response shape is documented in extension/payload.md.
  */
 
 import "dotenv/config";
 import { createServer } from "node:http";
-import { mkdir, writeFile, access, unlink } from "node:fs/promises";
+import { mkdir, writeFile, access, unlink, readdir } from "node:fs/promises";
 import { join, resolve, dirname, extname } from "node:path";
 import { homedir } from "node:os";
 import { fileURLToPath } from "node:url";
 import { execFile } from "node:child_process";
 import { promisify } from "node:util";
 import { stringify as toYaml } from "yaml";
-import { CATEGORIES, idFor, slugify, vaultDirs, expandHome, cleanTitle } from "./lib/vault.mjs";
+import { CATEGORIES, idFor, slugify, vaultDirs, expandHome, cleanTitle, readItems, styleVocabulary, titleCase } from "./lib/vault.mjs";
 import { EXT_BY_MIME } from "./lib/r2.mjs";
 
 const run = promisify(execFile);
@@ -67,6 +69,70 @@ const asList = (v) =>
   (Array.isArray(v) ? v : asText(v).split(","))
     .map((s) => asText(s).replace(/^\[\[|\]\]$/g, "").trim())
     .filter(Boolean);
+
+// ---------------------------------------------------------------------------
+// Vocabulary: the styles and projects the form offers as chips
+
+const CLIENTS_DIR = expandHome(process.env.ALLAI_CLIENTS_DIR || "~/Claude/projects/Crucial Design Operator/agency/clients");
+const CLOSED_CLIENT = /-(paused|completed|cancelled|canceled|archived|lost)$/i;
+
+let vocabCache = { at: 0, value: null };
+
+/**
+ * Styles already used in the vault (one spelling each, most used first) and
+ * projects: every active client folder plus any project a note already names.
+ * Where a note already spells a project ("crucial.design"), that spelling wins
+ * over the folder's ("crucial-design") so Obsidian links stay one note.
+ */
+async function vocabulary() {
+  if (vocabCache.value && Date.now() - vocabCache.at < 30_000) return vocabCache.value;
+  let items = [];
+  try {
+    items = await readItems();
+  } catch {}
+  const styles = styleVocabulary(items);
+
+  const used = new Map(); // slug -> { name, count }
+  for (const item of items) {
+    for (const p of item.projects) {
+      const key = slugify(p);
+      const entry = used.get(key) || { name: p, count: 0 };
+      entry.count++;
+      used.set(key, entry);
+    }
+  }
+  let folders = [];
+  try {
+    folders = (await readdir(CLIENTS_DIR, { withFileTypes: true }))
+      .filter((e) => e.isDirectory() && !/^[._]/.test(e.name) && !CLOSED_CLIENT.test(e.name))
+      .map((e) => e.name);
+  } catch {}
+  const projects = new Map();
+  for (const [key, { name, count }] of used) projects.set(key, { name, count, client: false });
+  for (const folder of folders) {
+    const key = slugify(folder);
+    if (projects.has(key)) projects.get(key).client = true;
+    else projects.set(key, { name: folder, count: 0, client: true });
+  }
+  const value = {
+    styles,
+    projects: [...projects.values()].sort((a, b) => b.count - a.count || a.name.localeCompare(b.name)),
+  };
+  vocabCache = { at: Date.now(), value };
+  return value;
+}
+
+/** Typed styles in the vault's spelling: "dark" → "Dark" when "Dark" is in use; new lowercase ones get Title Case. */
+function canonicalStyles(list, vocab) {
+  const known = new Map(vocab.styles.map((s) => [s.name.toLowerCase(), s.name]));
+  return [...new Set(list.map((s) => known.get(s.toLowerCase()) || (/[A-Z]/.test(s) ? s : titleCase(s))))];
+}
+
+/** Typed projects in an existing spelling when one matches by slug, so a slip in case or dots still lands on the same board. */
+function canonicalProjects(list, vocab) {
+  const known = new Map(vocab.projects.map((p) => [slugify(p.name), p.name]));
+  return [...new Set(list.map((p) => known.get(slugify(p)) || p))];
+}
 
 // ---------------------------------------------------------------------------
 // Writing a capture
@@ -219,6 +285,11 @@ function renderNote(c, savedRels) {
 async function handleCapture(payload) {
   const c = normalize(payload);
   const warnings = [];
+  const vocab = await vocabulary();
+  c.style = canonicalStyles(c.style, vocab);
+  c.projects = canonicalProjects(c.projects, vocab);
+  const newProjects = c.projects.filter((p) => !vocab.projects.some((v) => slugify(v.name) === slugify(p)));
+  if (newProjects.length) warnings.push(`new project ${newProjects.map((p) => `"${p}"`).join(", ")}: starts its own board`);
 
   await mkdir(INBOX_DIR, { recursive: true });
 
@@ -242,6 +313,7 @@ async function handleCapture(payload) {
   const notePath = await uniquePath(INBOX_DIR, noteFileName(c.title, c.id), ".md");
   if (!notePath.startsWith(INBOX_DIR + "/")) throw new Error("refusing to write outside the inbox"); // belt and braces
   await writeFile(notePath, renderNote(c, savedRels), { flag: "wx" });
+  vocabCache.at = 0; // the next form shows this capture's styles and projects
 
   const savedPaths = savedRels.map((rel) => (rel ? join(INBOX_DIR, rel) : null));
   return {
@@ -289,8 +361,9 @@ function readBody(req) {
   });
 }
 
-function health() {
-  return { ok: true, name: "allai-inbox", version: VERSION, inbox: INBOX_DIR, port: PORT, categories: CATEGORIES };
+async function health() {
+  const { styles, projects } = await vocabulary();
+  return { ok: true, name: "allai-inbox", version: VERSION, inbox: INBOX_DIR, port: PORT, categories: CATEGORIES, styles, projects };
 }
 
 async function route(req, res) {
@@ -300,7 +373,7 @@ async function route(req, res) {
     res.writeHead(204);
     return res.end();
   }
-  if (req.method === "GET" && (url.pathname === "/" || url.pathname === "/health")) return json(res, 200, health());
+  if (req.method === "GET" && (url.pathname === "/" || url.pathname === "/health")) return json(res, 200, await health());
   if (req.method === "POST" && url.pathname === "/capture") {
     let payload;
     try {

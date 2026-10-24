@@ -126,7 +126,10 @@ There is one menu item, **Add to AllAI**, everywhere. It captures the image when
 - **A video on X:** the player draws X's own menu, so right-click the post's *text* instead → **Add to AllAI**. The form knows which post you clicked, in the feed too; the note gets the video's poster frame as its image, and `npm run sync` fetches the video itself when you publish.
 - **Anywhere else:** right-click an image → **Add to AllAI** sends the image with the page's title, description and author. Right-click the page (or click the toolbar icon) sends the page with no image; `npm run sync` records the page itself, as it does for clipper notes.
 - **What I like** is the one required field. One to three lines on the specific thing worth keeping: not "nice", but "the pricing table uses one accent colour and it's on the number, not the button". That line becomes the card's note on the site, the file name of the image in every moodboard export, and the brief the AI annotator reads.
-- **Category** is the fixed list (seven today). **Style** is free tags, comma-separated. **Projects** are client project names (`caura, crucial.design`); the last value you used is prefilled next time. **Publish** puts it on allai.design at the next sync.
+- **Category** is the fixed list (seven today).
+- **Style** shows the styles you already use as chips; click to add or remove one. Type in the small field only for a new style. Spelling follows what's already in use, so "dark" is saved as "Dark" and the site's filter never shows both.
+- **Projects** shows your active client folders (from `ALLAI_CLIENTS_DIR`; folders ending in `-paused`, `-completed` or `-cancelled` are left out) plus any project a note already names. Nothing is created: a project is an Obsidian link in the note, and `npm run moodboard <project>` collects everything tagged with it. Case and dots don't matter (`Crucial.Design` is `crucial-design`); a new name starts a new board, and the form says so when you save.
+- **Publish** is ticked by default; untick it for a private reference. Published notes go live at the next sync.
 - **Enter** saves, Shift+Enter makes a new line, **Esc** closes.
 
 The form shows "Saved · <note name>" and closes. Open the note in Obsidian if

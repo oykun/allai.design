@@ -55,8 +55,8 @@ What the person typed:
 |---|---|---|
 | `why` | **yes** | "What I like": one to three lines on the specific thing worth keeping. The receiver rejects a capture without it (HTTP 400). This line is the curation note on the site and the brief in every moodboard export. |
 | `category` | no | One of the values in `CATEGORIES` (`scripts/lib/vault.mjs`). Anything else is rejected. Empty is allowed but hides the item from every category filter. |
-| `style` | no | Free tags; the Style filter on the site. |
-| `projects` | no | Client projects this is a reference for, plain names. The receiver writes them as wikilinks (`[[caura]]`). |
+| `style` | no | Tags for the site's Style filter. The receiver rewrites each to the spelling already used in the vault (`dark` → `Dark`). |
+| `projects` | no | Client projects this is a reference for, plain names. The receiver matches them to an existing project by slug (so `Crucial.Design` lands on `crucial.design`) and writes them as wikilinks (`[[caura]]`). A name it hasn't seen comes back as a warning. |
 | `publish` | no | `true` to put it on allai.design on the next `npm run sync`. Default `false`. |
 
 Envelope, added by the background script:
@@ -92,9 +92,11 @@ URL, and `npm run sync` still hosts the media itself).
 missing or a value is out of range. The form shows the error and keeps what
 was typed. `500` for anything else (disk full, folder not writable).
 
-`GET /health` answers `{ ok, name, version, inbox, port, categories }`; the
-extension reads `categories` from it so the dropdown never drifts from the
-scripts.
+`GET /health` answers `{ ok, name, version, inbox, port, categories, styles, projects }`.
+`styles` is `[{ name, count }]`, most used first; `projects` is
+`[{ name, count, client }]`, active client folders and projects notes already
+name. The form builds its category list and its chips from these, so they
+never drift from the vault.
 
 ## What the receiver writes
 

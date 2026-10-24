@@ -263,7 +263,47 @@ export async function readItems({ onError } = {}) {
       }
     }
   }
+  // "dark" and "Dark" are one style. Normalise here so the site's filter,
+  // moodboards and annotations all see a single spelling. Notes are untouched.
+  const canon = styleCanon(items);
+  for (const item of items) item.style = [...new Set(item.style.map((s) => canon.get(s.toLowerCase()) || s))];
   return items.sort((a, b) => b.created.localeCompare(a.created) || a.title.localeCompare(b.title));
+}
+
+/**
+ * One spelling per style, keyed by its lowercase form. A capitalised
+ * spelling wins over an all-lowercase one (the site's tags are Title Case);
+ * among several, the most used. An all-lowercase-only style gets Title Case.
+ */
+export function styleCanon(items) {
+  const counts = new Map(); // lower -> Map(spelling -> count)
+  for (const item of items) {
+    for (const raw of item.style) {
+      const s = raw.trim();
+      if (!s) continue;
+      const key = s.toLowerCase();
+      if (!counts.has(key)) counts.set(key, new Map());
+      counts.get(key).set(s, (counts.get(key).get(s) || 0) + 1);
+    }
+  }
+  const canon = new Map();
+  for (const [key, spellings] of counts) {
+    const ranked = [...spellings].sort((a, b) => Number(/[A-Z]/.test(b[0])) - Number(/[A-Z]/.test(a[0])) || b[1] - a[1]);
+    const best = ranked[0][0];
+    canon.set(key, /[A-Z]/.test(best) ? best : titleCase(best));
+  }
+  return canon;
+}
+
+/** Styles in use with how often, most used first, in their canonical spelling. */
+export function styleVocabulary(items) {
+  const counts = new Map();
+  for (const item of items) for (const s of item.style) counts.set(s, (counts.get(s) || 0) + 1);
+  return [...counts].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0])).map(([name, count]) => ({ name, count }));
+}
+
+export function titleCase(s) {
+  return String(s).replace(/(^|[\s-])(\p{Ll})/gu, (_, sep, ch) => sep + ch.toUpperCase());
 }
 
 /**

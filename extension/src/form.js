@@ -63,6 +63,12 @@
     button.primary { background: #ececec; color: #111; border-color: #ececec; }
     button:disabled { opacity: 0.5; cursor: default; }
     kbd { font: 11px ui-monospace, Menlo, monospace; opacity: 0.6; margin-left: 6px; }
+    .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 6px; }
+    .chip { font: inherit; font-size: 12px; font-weight: 500; line-height: 1.2; padding: 4px 10px; border-radius: 999px;
+            border: 1px solid #2c2c2c; background: #1c1c1c; color: #c8c8c8; cursor: pointer; }
+    .chip:hover { border-color: #6b6b6b; }
+    .chip.on { background: #ececec; color: #111; border-color: #ececec; }
+    input.more { padding: 5px 9px; font-size: 12px; }
   `;
 
   function el(tag, attrs = {}, children = []) {
@@ -92,9 +98,38 @@
     }
   }
 
+  /** Chips that toggle names in a comma-separated input, matched without case or punctuation. */
+  function chipRow(input, names) {
+    const key = (s) => String(s).toLowerCase().replace(/[^a-z0-9]+/g, "");
+    const row = el("div", { class: "chips" });
+    if (!names.length) row.hidden = true;
+    const chips = names.map((name) =>
+      el("button", {
+        type: "button",
+        class: "chip",
+        text: name,
+        onclick: () => {
+          const list = splitList(input.value);
+          const i = list.findIndex((x) => key(x) === key(name));
+          if (i >= 0) list.splice(i, 1);
+          else list.push(name);
+          input.value = list.join(", ");
+          sync();
+        },
+      }),
+    );
+    function sync() {
+      const on = new Set(splitList(input.value).map(key));
+      for (const c of chips) c.classList.toggle("on", on.has(key(c.textContent)));
+    }
+    input.addEventListener("input", sync);
+    row.append(...chips);
+    return row;
+  }
+
   /**
    * @param payload  what the content script read: source, page, title, image, author, authorName, text, published, siteKind
-   * @param options  { config: {categories, lastProjects, online}, save: (data) => Promise<reply>, inline?: boolean, onClose?: () => void }
+   * @param options  { config: {categories, styles, projects, online}, save: (data) => Promise<reply>, inline?: boolean, onClose?: () => void }
    */
   function show(payload, options) {
     const { config = {}, save, inline = false, onClose } = options;
@@ -124,8 +159,13 @@
       ...categories.map((c) => el("option", { value: c, text: c })),
     ]);
     const publish = el("input", { type: "checkbox", checked: true }); // on by default: most captures are for the site
-    const style = el("input", { type: "text", placeholder: "Dark, Typographic, Bento", "aria-label": "Style" });
-    const projects = el("input", { type: "text", placeholder: "crucial.design, caura", value: config.lastProjects || "", "aria-label": "Projects" });
+    // Style and Projects: one click on a chip adds or removes it; the small
+    // field under the chips is only for a new one. Chips come from the
+    // receiver: styles already used in the vault, active client folders.
+    const style = el("input", { type: "text", class: "more", placeholder: "New style, comma-separated", "aria-label": "Style" });
+    const projects = el("input", { type: "text", class: "more", placeholder: "New project", "aria-label": "Projects" });
+    const styleChips = chipRow(style, (config.styles || []).slice(0, 14).map((s) => s.name));
+    const projectChips = chipRow(projects, (config.projects || []).map((p) => p.name));
     const status = el("div", { class: "status", text: config.online === false ? "Receiver not running — start it with: npm run inbox" : "" });
     if (config.online === false) status.classList.add("err");
     const saveBtn = el("button", { class: "primary", type: "submit" }, ["Save", el("kbd", { text: "↵" })]);
@@ -147,8 +187,10 @@
         el("div", {}, [el("label", { text: "Publish" }), el("label", { class: "check" }, [publish, "On allai.design"])]),
       ]),
       el("label", { text: "Style" }),
+      styleChips,
       style,
       el("label", { text: "Projects" }),
+      projectChips,
       projects,
       el("div", { class: "actions" }, [status, cancelBtn, saveBtn]),
     ]);

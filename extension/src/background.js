@@ -70,18 +70,19 @@ api.action?.onClicked.addListener((tab) =>
 // Settings and receiver
 
 async function settings() {
-  return api.storage.local.get({ receiver: DEFAULT_RECEIVER, lastProjects: "", categories: null });
+  return api.storage.local.get({ receiver: DEFAULT_RECEIVER, categories: null, vocab: null });
 }
 
 function receiverUrl(s) {
   return String(s.receiver || DEFAULT_RECEIVER).replace(/\/+$/, "");
 }
 
-/** What the form needs to render: categories (live if possible) and defaults. */
+/** What the form needs to render: categories, and the styles and projects offered as chips (live if possible). */
 async function config() {
   const s = await settings();
   const receiver = receiverUrl(s);
   let categories = s.categories || FALLBACK_CATEGORIES;
+  let vocab = s.vocab || { styles: [], projects: [] };
   let online = false;
   try {
     const res = await fetch(`${receiver}/health`, { signal: AbortSignal.timeout(800) });
@@ -91,12 +92,16 @@ async function config() {
         categories = health.categories;
         await api.storage.local.set({ categories });
       }
+      if (Array.isArray(health.styles) && Array.isArray(health.projects)) {
+        vocab = { styles: health.styles, projects: health.projects };
+        await api.storage.local.set({ vocab });
+      }
       online = true;
     }
   } catch {
     // Not running — the form still opens; the save explains what to start.
   }
-  return { receiver, categories, lastProjects: s.lastProjects || "", online };
+  return { receiver, categories, styles: vocab.styles, projects: vocab.projects, online };
 }
 
 function browserName() {
@@ -135,9 +140,6 @@ async function save(payload) {
     data = await res.json();
   } catch {
     data = { ok: false, error: `Receiver answered ${res.status} with no JSON body` };
-  }
-  if (data.ok && Array.isArray(payload.projects) && payload.projects.length) {
-    await api.storage.local.set({ lastProjects: payload.projects.join(", ") });
   }
   return data;
 }
