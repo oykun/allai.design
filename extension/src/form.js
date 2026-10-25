@@ -69,6 +69,8 @@
     .chip:hover { border-color: #6b6b6b; }
     .chip.on { background: #ececec; color: #111; border-color: #ececec; }
     input.more { padding: 5px 9px; font-size: 12px; }
+    label .hint { text-transform: none; letter-spacing: 0; color: #5f5f5f; }
+    .check.publish { margin-top: 12px; }
     .check.shot { height: auto; margin-top: 6px; font-size: 12px; color: #8a8a8a; }
     .check.shot input { width: 14px; height: 14px; }
   `;
@@ -157,10 +159,23 @@
 
     const title = el("input", { class: "title", type: "text", value: payload.title || "", placeholder: "Title", "aria-label": "Title" });
     const why = el("textarea", { rows: 3, placeholder: "The specific thing worth keeping — the type, the motion, how the case study is structured…", "aria-label": "What I like" });
-    const category = el("select", { "aria-label": "Category" }, [
-      el("option", { value: "", text: "— pick one —" }),
-      ...categories.map((c) => el("option", { value: c, text: c })),
-    ]);
+    // Category: one click picks a chip, a second click on it clears it. Left
+    // empty, the sync picks one before the capture goes on the site.
+    let categoryValue = "";
+    const categoryChips = el("div", { class: "chips", role: "radiogroup", "aria-label": "Category" },
+      categories.map((name) => {
+        const chip = el("button", {
+          type: "button",
+          class: "chip",
+          text: name,
+          onclick: () => {
+            categoryValue = categoryValue === name ? "" : name;
+            for (const c of categoryChips.children) c.classList.toggle("on", c.textContent === categoryValue);
+          },
+        });
+        return chip;
+      }),
+    );
     const publish = el("input", { type: "checkbox", checked: true }); // on by default: most captures are for the site
     // Style and Projects: one click on a chip adds or removes it; the small
     // field under the chips is only for a new one. Chips come from the
@@ -190,10 +205,9 @@
       ]),
       el("label", {}, ["What I like ", el("span", { class: "req", text: "*" })]),
       why,
-      el("div", { class: "row" }, [
-        el("div", {}, [el("label", { text: "Category" }), category]),
-        el("div", {}, [el("label", { text: "Publish" }), el("label", { class: "check" }, [publish, "On allai.design"])]),
-      ]),
+      el("label", {}, ["Category ", el("span", { class: "hint", text: "· skip it and the sync picks one" })]),
+      categoryChips,
+      el("label", { class: "check publish" }, [publish, "Publish on allai.design"]),
       el("label", { text: "Style" }),
       styleChips,
       style,
@@ -257,7 +271,7 @@
         screenshot,
         title: title.value.trim() || payload.title,
         why: reason,
-        category: category.value,
+        category: categoryValue,
         style: splitList(style.value),
         projects: splitList(projects.value),
         publish: publish.checked,

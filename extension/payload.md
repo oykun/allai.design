@@ -55,7 +55,7 @@ What the person typed:
 | Field | Required | Meaning |
 |---|---|---|
 | `why` | **yes** | "What I like": one to three lines on the specific thing worth keeping. The receiver rejects a capture without it (HTTP 400). This line is the curation note on the site and the brief in every moodboard export. |
-| `category` | no | One of the values in `CATEGORIES` (`scripts/lib/vault.mjs`). Anything else is rejected. Empty is allowed but hides the item from every category filter. |
+| `category` | no | One of the values in `CATEGORIES` (`scripts/lib/vault.mjs`). Anything else is rejected. Empty is allowed: the form shows the categories as chips and skipping them is fine, because the sync has Claude pick one before a published capture goes live. |
 | `style` | no | Tags for the site's Style filter. The receiver rewrites each to the spelling already used in the vault (`dark` → `Dark`). |
 | `projects` | no | Client projects this is a reference for, plain names. The receiver matches them to an existing project by slug (so `Crucial.Design` lands on `crucial.design`) and writes them as wikilinks (`[[caura]]`). A name it hasn't seen comes back as a warning. |
 | `publish` | no | `true` to put it on allai.design on the next `npm run sync`. Default `false`. |

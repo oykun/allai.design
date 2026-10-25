@@ -32,12 +32,16 @@ import { parse as parseYaml } from "yaml";
 export const CATEGORIES = [
   "Website Design",
   "Product Design",
+  "Brand Design",
   "Illustration",
-  "Reference Material",
-  "Articles",
-  "Products",
-  "Skills",
+  "Tools",
+  "Reading",
 ];
+
+// Categories retired on 2026-10-25, read as their replacement so older notes
+// keep showing under a filter until they're re-tagged. Reference Material has
+// no single replacement: those notes need a category picked by hand.
+const RENAMED_CATEGORIES = { Products: "Tools", Skills: "Tools", Articles: "Reading" };
 
 // Legacy spellings are accepted so the first hand-tagged clips still count.
 const ALLAI_TAGS = new Set(["allai", "allai.design", "allai-design"]);
@@ -249,7 +253,7 @@ export async function readItem(file) {
     source: displaySource(fm.author, sourceUrl),
     author: stripWikilink(asString(fm.author)),
     description: asString(fm.description),
-    category: asString(fm.category),
+    category: RENAMED_CATEGORIES[asString(fm.category)] || asString(fm.category),
     style: asList(fm.style).map((s) => s.trim()).filter(Boolean),
     projects,
     publish: asBool(fm.publish),

@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;800&display=swap');
 
 :root {
   --bg: #ffffff;
@@ -37,6 +37,18 @@ img {
 .card {
   display: flex;
   flex-direction: column;
+}
+
+/* Masonry, as in Crucial Inspo: the script in index.astro places each card in
+   the shortest column. Here, not in the page's scoped styles, because the cards
+   come from Card.astro. Without the script the page's plain grid still works. */
+.grid.masonry {
+  display: block;
+  position: relative;
+}
+
+.grid.masonry > .card {
+  position: absolute;
 }
 
 /* The whole image is the trigger that opens the detail modal. */
@@ -100,7 +112,7 @@ img {
   color: var(--text-muted);
 }
 
-/* Side panel — fixed right, shared across pages */
+/* Side panel — fixed right, shared across pages: logo and page nav, then the filters */
 .side-panel {
   position: fixed;
   right: 0;
@@ -110,19 +122,6 @@ img {
   z-index: 100;
   overflow-y: auto;
   scrollbar-width: none;
-}
-
-/* Left panel — logo and page nav, mirrored from the right-hand filters */
-.side-panel--left {
-  right: auto;
-  left: 0;
-}
-
-.side-panel--left .side-panel-inner {
-  -webkit-mask-image: linear-gradient(to left, transparent 0%, black 55%);
-  mask-image: linear-gradient(to left, transparent 0%, black 55%);
-  padding: 24px 16px 24px 20px;
-  text-align: left;
 }
 
 .side-panel-inner {
@@ -135,6 +134,127 @@ img {
   gap: 28px;
   text-align: right;
   min-height: 100%;
+}
+
+/* The feed's panel is a drawer with no panel at all: the Filters button reveals
+   the logo, nav and filters as frosted chips floating over the feed, popping in
+   from the bottom up. The panel itself lets clicks through; only chips catch them. */
+.side-panel--drawer {
+  width: 300px;
+  pointer-events: none;
+  visibility: hidden;
+  transition: visibility 0s 0.3s;
+}
+
+.side-panel--drawer.open {
+  visibility: visible;
+  transition: none;
+}
+
+/* The chips gather in the bottom-right corner, just above the button. */
+.side-panel--drawer .side-panel-inner {
+  -webkit-mask-image: none;
+  mask-image: none;
+  justify-content: flex-end;
+  padding: 24px 24px 112px; /* clears the button */
+  gap: 14px;
+}
+
+.side-panel--drawer .side-count { margin-top: 0; padding-bottom: 0; }
+
+/* Behind them, the feed simply blurs: no colour, fading out to the left. */
+.side-panel--drawer::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 420px;
+  z-index: -1;
+  pointer-events: none;
+  -webkit-backdrop-filter: blur(18px);
+  backdrop-filter: blur(18px);
+  -webkit-mask-image: linear-gradient(to left, #000 55%, transparent);
+  mask-image: linear-gradient(to left, #000 55%, transparent);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.side-panel--drawer.open::before { opacity: 1; }
+
+.side-panel.side-panel--drawer .side-nav,
+.side-panel.side-panel--drawer .filter-list,
+.side-panel.side-panel--drawer .filter-group-header {
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 6px;
+}
+
+.side-panel--drawer .side-section { align-items: flex-end; gap: 6px; }
+.side-panel--drawer .filter-dot { display: none; }
+.side-panel--drawer [hidden] { display: none !important; }
+
+.side-panel.side-panel--drawer :is(.site-logo, .nav-link, .filter-group-label, .filter-clear, .filter-opt, .side-count span) {
+  pointer-events: auto;
+  display: inline-flex;
+  align-items: center;
+  width: auto;
+  margin: 0;
+  padding: 5px 12px;
+  border-radius: 999px;
+  font: inherit;
+  line-height: 1.4;
+  color: var(--text-primary);
+  text-decoration: none;
+  background: rgba(255, 255, 255, 0.74);
+  -webkit-backdrop-filter: blur(14px) saturate(1.4);
+  backdrop-filter: blur(14px) saturate(1.4);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  opacity: 0;
+  transform: translateY(10px) scale(0.94);
+  transition:
+    opacity 0.2s ease,
+    transform 0.32s cubic-bezier(0.2, 0, 0, 1),
+    background-color 0.15s, color 0.15s;
+  transition-delay: calc(var(--n, 0) * 16ms);
+}
+
+.side-panel.side-panel--drawer.open :is(.site-logo, .nav-link, .filter-group-label, .filter-clear, .filter-opt, .side-count span) {
+  opacity: 1;
+  transform: none;
+}
+
+/* Closing: all at once. */
+.side-panel.side-panel--drawer:not(.open) :is(.site-logo, .nav-link, .filter-group-label, .filter-clear, .filter-opt, .side-count span) {
+  transition-delay: 0s;
+}
+
+/* Group names and the count read as captions, not buttons. */
+.side-panel.side-panel--drawer :is(.filter-group-label, .side-count span) {
+  pointer-events: none;
+  color: var(--text-muted);
+  background: rgba(255, 255, 255, 0.5);
+  box-shadow: none;
+}
+
+.side-panel.side-panel--drawer .site-logo { font-weight: 600; }
+.side-panel.side-panel--drawer .filter-clear { color: var(--text-muted); cursor: pointer; }
+.side-panel.side-panel--drawer :is(.filter-opt, .nav-link, .filter-clear):hover { background: #fff; }
+
+.side-panel.side-panel--drawer :is(.filter-opt.active, .nav-link--active) {
+  background: var(--text-primary);
+  color: #fff;
+  font-weight: 500;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .side-panel.side-panel--drawer :is(.site-logo, .nav-link, .filter-group-label, .filter-clear, .filter-opt, .side-count span) {
+    transform: none;
+    transition: opacity 0.15s;
+    transition-delay: 0s;
+  }
 }
 
 .side-panel:hover .side-panel-inner {
@@ -210,7 +330,7 @@ img {
   top: 0;
   bottom: 0;
   left: 0;
-  right: 200px;
+  right: 320px; /* clear of the details pills */
   display: flex;
   align-items: center;
   justify-content: center;
@@ -236,8 +356,7 @@ img {
 
 /* A tall screenshot: a scrolling column as wide as the stage allows, rather
    than the whole page shrunk to a strip. */
-.modal-media--tall,
-.modal-media--stack {
+.modal-media--tall {
   width: min(100%, 1100px);
   max-width: none;
   height: 92vh;
@@ -245,18 +364,36 @@ img {
   overscroll-behavior: contain;
 }
 
-.modal-media--tall img,
-.modal-media--stack img {
+.modal-media--tall img {
   width: 100%;
   max-height: none;
 }
 
-/* A gallery: every picture, one under another. */
+/* A gallery: every picture side by side at one height, scrolling sideways
+   and snapping to each. */
 .modal-media--stack {
   display: flex;
-  flex-direction: column;
   gap: 12px;
-  width: min(100%, 900px);
+  width: 100%;
+  min-width: 0; /* a flex item, or it grows to fit every picture */
+  max-width: none;
+  max-height: none;
+  overflow-x: auto;
+  overflow-y: hidden;
+  overscroll-behavior: contain;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+}
+
+.modal-media--stack::-webkit-scrollbar { display: none; }
+
+.modal-media--stack img {
+  flex: 0 0 auto;
+  width: auto;
+  height: 80vh;
+  max-width: none;
+  max-height: none;
+  scroll-snap-align: start;
 }
 
 /* The morph animates the media itself, so the chrome around it just fades. */
@@ -275,24 +412,54 @@ img {
   .modal-details { animation: none; }
 }
 
-/* Mirrors .side-panel-inner so the copy lands where the filters were. */
+/* The details gathered in the bottom-right corner, popping in from the
+   bottom up. */
 .modal-details {
   position: absolute;
   top: 0;
   right: 0;
-  width: 200px;
+  width: 320px;
   height: 100vh;
   overflow-y: auto;
   scrollbar-width: none;
-  padding: 24px 20px 24px 16px;
+  padding: 24px;
   display: flex;
   flex-direction: column;
+  justify-content: flex-end;
   align-items: flex-end;
-  gap: 20px;
+  gap: 8px;
   text-align: right;
 }
 
 .modal-details::-webkit-scrollbar { display: none; }
+
+/* Three blocks, one style: title and credit; the note with its tags; the two
+   actions. */
+.modal-block,
+.modal-source,
+.modal-close {
+  max-width: 100%;
+  font: inherit;
+  color: var(--text-primary);
+  background: rgba(255, 255, 255, 0.78);
+  -webkit-backdrop-filter: blur(14px) saturate(1.4);
+  backdrop-filter: blur(14px) saturate(1.4);
+  animation: pill-in 0.32s cubic-bezier(0.2, 0, 0, 1) both;
+  animation-delay: calc(var(--n, 0) * 40ms);
+}
+
+.modal-block {
+  border-radius: 16px;
+  padding: 10px 14px;
+  text-align: left;
+}
+
+.modal-block[hidden] { display: none; }
+
+@keyframes pill-in {
+  from { opacity: 0; transform: translateY(10px) scale(0.96); }
+  to { opacity: 1; transform: none; }
+}
 
 .modal-title {
   font-size: inherit;
@@ -300,55 +467,49 @@ img {
   line-height: 1.4;
 }
 
-.modal-sub {
+.modal-sub,
+.modal-tags {
   color: var(--text-muted);
   margin-top: 2px;
 }
 
-.modal-close {
-  font-size: inherit;
-  font-family: var(--font);
-  color: var(--text-muted);
-  background: none;
-  border: none;
-  padding: 0;
-  cursor: pointer;
-  text-decoration: underline;
-  text-underline-offset: 3px;
-  transition: color 0.1s;
-}
-
-.modal-close:hover { color: var(--text-primary); }
-
-.modal-tags {
-  list-style: none;
-  display: flex;
-  flex-direction: column;
-  gap: 1px;
-  color: var(--text-muted);
-}
-
-.modal-tags li.modal-tag--category {
-  color: var(--text-primary);
-  font-weight: 500;
-  margin-bottom: 5px;
-}
-
 .modal-note {
-  color: var(--text-primary);
-  line-height: 1.7;
+  line-height: 1.6;
+  margin-bottom: 6px;
 }
 
 .modal-note:empty { display: none; }
 
-.modal-source {
-  color: var(--text-muted);
-  text-decoration: underline;
-  text-underline-offset: 3px;
-  transition: color 0.1s;
+.modal-actions {
+  display: flex;
+  gap: 6px;
+  /* the actions animate as pills, not as a block */
 }
 
-.modal-source:hover { color: var(--text-primary); }
+.modal-source,
+.modal-close {
+  display: inline-block;
+  padding: 6px 14px;
+  border: none;
+  border-radius: 999px;
+  line-height: 1.4;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color 0.15s;
+}
+
+.modal-source:hover { background: #fff; }
+.modal-source[hidden] { display: none; }
+
+.modal-close {
+  background: var(--text-primary);
+  color: #fff;
+  font-weight: 500;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .modal-block, .modal-source, .modal-close { animation: modal-fade 0.15s ease both; }
+}
 
 /* No room for two columns — media on top, details beneath it. */
 @media (max-width: 720px) {
@@ -370,8 +531,8 @@ img {
     padding: 0 16px 40px;
   }
 
-  .modal-tags { flex-direction: row; flex-wrap: wrap; gap: 8px; }
 
-  .modal-media--tall,
-.modal-media--stack { height: 80vh; }
+
+  .modal-media--tall { height: 80vh; }
+  .modal-media--stack img { height: 60vh; }
 }

@@ -24,7 +24,9 @@
 
 import "dotenv/config";
 import { readFile, writeFile, mkdir } from "node:fs/promises";
-import { basename, extname } from "node:path";
+import { basename, extname, join } from "node:path";
+import { existsSync } from "node:fs";
+import { homedir } from "node:os";
 import { execFile } from "node:child_process";
 import { promisify } from "node:util";
 import { CATEGORIES, readItems, setFrontmatterKeys, slugify } from "./lib/vault.mjs";
@@ -122,6 +124,70 @@ async function ensureMedia(items) {
   return failed;
 }
 
+// A capture saved without a category gets one here, before it goes on the site:
+// Claude (the `claude` CLI, on Oykun's own plan, small model) reads the title,
+// the What I like line and the picture, and picks from CATEGORIES; a capture
+// with no styles gets up to three from the ones already in use. The answer is
+// written into the note, so it shows in Obsidian and Crucial Inspo and can be
+// changed there; the next sync leaves a note with a category alone.
+const CLAUDE_BIN = process.env.CLAUDE_BIN
+  || [join(homedir(), ".local/bin/claude"), "/opt/homebrew/bin/claude", "/usr/local/bin/claude"].find(existsSync)
+  || "claude";
+
+async function categorise(item, styleVocab) {
+  const picture = item.screenshot || item.localImages[0] || "";
+  const prompt = [
+    "You file design references for allai.design, a curated site of AI-era design.",
+    `Pick the one category that fits best: ${CATEGORIES.join(" / ")}.`,
+    "Website Design: marketing sites and landing pages. Product Design: app and interface work.",
+    "Brand Design: identities, logos, marks, brand systems and brand imagery. Illustration: imagery, 3D, motion visuals.",
+    "Tools: AI tools, products, Claude skills, plugins. Reading: articles and essays.",
+    item.style.length ? "" : `Also pick up to three styles, preferring these existing ones: ${styleVocab.join(", ")}.`,
+    "",
+    `Title: ${item.title}`,
+    `Source: ${item.sourceUrl}`,
+    `What Oykun likes about it: ${item.curationNote || "(nothing written)"}`,
+    item.description ? `Page description: ${item.description}` : "",
+    picture ? `The picture is at: ${picture} (read it).` : "",
+    "",
+    'Answer with JSON only, no prose: {"category": "...", "style": ["..."]}',
+  ].filter((l) => l !== "").join("\n");
+  const { stdout } = await run(CLAUDE_BIN, ["-p", prompt, "--model", "haiku", "--allowedTools", "Read", "--output-format", "text"], {
+    timeout: 180000,
+    maxBuffer: 1024 * 1024,
+  });
+  const json = stdout.match(/\{[\s\S]*\}/)?.[0];
+  if (!json) throw new Error("no answer");
+  const answer = JSON.parse(json);
+  if (!CATEGORIES.includes(answer.category)) throw new Error(`answered "${answer.category}"`);
+  const style = Array.isArray(answer.style) ? answer.style.map(String).map((s) => s.trim()).filter(Boolean).slice(0, 3) : [];
+  return { category: answer.category, style };
+}
+
+async function ensureCategories(items, all) {
+  const needs = items.filter((i) => !CATEGORIES.includes(i.category));
+  if (!needs.length) return;
+  if (DRY) {
+    warn(needs, "have no category — a real run has Claude pick one");
+    return;
+  }
+  const styleVocab = [...new Set(all.flatMap((i) => i.style))].sort();
+  for (const item of needs) {
+    console.log(`  → categorising: ${item.title}`);
+    try {
+      const pick = await categorise(item, styleVocab);
+      const updates = { category: pick.category };
+      if (!item.style.length && pick.style.length) updates.style = pick.style;
+      await setFrontmatterKeys(item.file, updates);
+      Object.assign(item, updates);
+      console.log(`    ${pick.category}${updates.style ? ` · ${updates.style.join(", ")}` : ""}`);
+    } catch (err) {
+      console.log(`    ✗ ${err.message} (left without a category)`);
+    }
+  }
+  console.log();
+}
+
 // A post with several pictures keeps them all: the cover is `image`, the rest go to R2
 // beside it and the whole list is written to the note as `gallery`. Runs after
 // ensureMedia, so the cover is already hosted; a gallery is only redone when the
@@ -213,6 +279,8 @@ const published = all.filter((i) => i.publish);
 const pending = all.filter((i) => !i.publish);
 
 console.log(`\n${all.length} allai note(s) in the vault, ${published.length} marked publish.\n`);
+
+await ensureCategories(published.filter((i) => i.sourceUrl), all);
 
 // Problems the preflight should name before anything ships.
 warn(published.filter((i) => !i.sourceUrl), "have no source URL — can't be published");

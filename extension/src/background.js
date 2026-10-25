@@ -17,11 +17,10 @@ const DEFAULT_RECEIVER = "http://127.0.0.1:7711";
 const FALLBACK_CATEGORIES = [
   "Website Design",
   "Product Design",
+  "Brand Design",
   "Illustration",
-  "Reference Material",
-  "Articles",
-  "Products",
-  "Skills",
+  "Tools",
+  "Reading",
 ];
 
 const MENU = "allai";

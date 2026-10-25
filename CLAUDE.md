@@ -19,8 +19,10 @@ Full detail, rules and troubleshooting: `.claude/skills/publish-allai/SKILL.md`.
 
 ## Rules
 
-- The vault is Oykun's. Scripts read it; the only write is `image`/`video`
-  on a note he marked `publish`. Claude never edits a clip by hand.
+- The vault is Oykun's. Scripts read it; the only writes are `image`/`video`
+  (and `gallery`) on a note he marked `publish`, and `category` (plus `style`
+  when empty) on a published note saved without one, picked by `claude -p`
+  during the sync. Claude never edits a clip by hand unless Oykun asks.
 - Never use a site's og:image as the item's visual. Capture the real page.
 - The repo is public: the snapshot carries no `projects` and no unpublished
   notes. Keep secrets in `.env`.
