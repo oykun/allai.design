@@ -35,8 +35,11 @@
     "id": "564e9a0ed377",
     "title": "Ayush Soni on X",
     "source": "@ayushsoni_io",
-    "category": "Illustration",
-    "style": [],
+    "category": "Brand Design",
+    "style": [
+      "Minimal",
+      "Colourful"
+    ],
     "sourceUrl": "https://x.com/ayushsoni_io/status/2114267145526022646",
     "imageUrl": "https://pub-d7686b7c26dd403187af8d3e6340fc6c.r2.dev/items/564e9a0ed377/ayush-soni-on-x.jpg",
     "images": [
@@ -50,6 +53,27 @@
     "publishedDate": "2026-10-25"
   },
   {
+    "id": "86262874e1c9",
+    "title": "Early brand explorations for Conduit",
+    "source": "@xchylerdrenth",
+    "category": "Brand Design",
+    "style": [
+      "Colourful",
+      "Gradient"
+    ],
+    "sourceUrl": "https://x.com/xchylerdrenth/status/2101319733178257567",
+    "imageUrl": "https://pub-d7686b7c26dd403187af8d3e6340fc6c.r2.dev/items/86262874e1c9/early-brand-explorations-for-conduit.jpg",
+    "images": [
+      "https://pub-d7686b7c26dd403187af8d3e6340fc6c.r2.dev/items/86262874e1c9/early-brand-explorations-for-conduit.jpg",
+      "https://pub-d7686b7c26dd403187af8d3e6340fc6c.r2.dev/items/86262874e1c9/early-brand-explorations-for-conduit-2.jpg",
+      "https://pub-d7686b7c26dd403187af8d3e6340fc6c.r2.dev/items/86262874e1c9/early-brand-explorations-for-conduit-3.jpg",
+      "https://pub-d7686b7c26dd403187af8d3e6340fc6c.r2.dev/items/86262874e1c9/early-brand-explorations-for-conduit-4.jpg"
+    ],
+    "videoUrl": "",
+    "curationNote": "the aura effect and the softness is beautiful. works well as a backdrop as well",
+    "publishedDate": "2026-10-25"
+  },
+  {
     "id": "ef7686012b21",
     "title": "Exa",
     "source": "Exa Labs",
@@ -59,6 +83,21 @@
     "imageUrl": "https://pub-d7686b7c26dd403187af8d3e6340fc6c.r2.dev/items/ef7686012b21/exa.jpg",
     "videoUrl": "",
     "curationNote": "test",
+    "publishedDate": "2026-10-25"
+  },
+  {
+    "id": "a7258260a1f1",
+    "title": "Oğuz Yağız Kara on X",
+    "source": "@oguzyagizkara",
+    "category": "Illustration",
+    "style": [
+      "Animation",
+      "Dark"
+    ],
+    "sourceUrl": "https://x.com/oguzyagizkara/status/2112524525917143529",
+    "imageUrl": "https://pub-d7686b7c26dd403187af8d3e6340fc6c.r2.dev/items/a7258260a1f1/oguz-yag-z-kara-on-x.jpg",
+    "videoUrl": "https://pub-d7686b7c26dd403187af8d3e6340fc6c.r2.dev/items/a7258260a1f1/oguz-yag-z-kara-on-x.mp4",
+    "curationNote": "Love the crisp techy look and feel and that over motion is just perfect",
     "publishedDate": "2026-10-25"
   },
   {
@@ -91,6 +130,25 @@
     "publishedDate": "2026-10-25"
   },
   {
+    "id": "fa6d1ae4ca66",
+    "title": "WIP",
+    "source": "@socoloffalex",
+    "category": "Brand Design",
+    "style": [
+      "3D",
+      "Generative"
+    ],
+    "sourceUrl": "https://x.com/socoloffalex/status/2111006434737496115",
+    "imageUrl": "https://pub-d7686b7c26dd403187af8d3e6340fc6c.r2.dev/items/fa6d1ae4ca66/wip.jpg",
+    "images": [
+      "https://pub-d7686b7c26dd403187af8d3e6340fc6c.r2.dev/items/fa6d1ae4ca66/wip.jpg",
+      "https://pub-d7686b7c26dd403187af8d3e6340fc6c.r2.dev/items/fa6d1ae4ca66/wip-2.jpg"
+    ],
+    "videoUrl": "",
+    "curationNote": "Love the cute impression of this brand . and a realistic rendering as a plush toy is top-notch",
+    "publishedDate": "2026-10-25"
+  },
+  {
     "id": "a3394cbc40d0",
     "title": "XchylerDrenth on X",
     "source": "@xchylerdrenth",
@@ -117,7 +175,7 @@
     "source": "@studiobakers",
     "category": "Illustration",
     "style": [
-      "Generative UI",
+      "Generative",
       "Dark",
       "Colourful"
     ],
@@ -136,9 +194,9 @@
     "id": "f06af99ec495",
     "title": "cards handhold",
     "source": "@studiobakers",
-    "category": "",
+    "category": "Brand Design",
     "style": [
-      "Aura"
+      "Gradient"
     ],
     "sourceUrl": "https://x.com/studiobakers/status/2113577421178024311",
     "imageUrl": "https://pub-d7686b7c26dd403187af8d3e6340fc6c.r2.dev/items/f06af99ec495/cards-handhold.jpg",
@@ -156,7 +214,10 @@
     "title": "Context.dev: Web Data API for AI Agents (Scrape, Search, Crawl)",
     "source": "context.dev",
     "category": "Website Design",
-    "style": [],
+    "style": [
+      "Colourful",
+      "Animation"
+    ],
     "sourceUrl": "https://www.context.dev/",
     "imageUrl": "https://pub-d7686b7c26dd403187af8d3e6340fc6c.r2.dev/items/a44fb3ced995/context-dev-web-data-api-for-ai-agents-scrape-search-crawl.jpg",
     "videoUrl": "https://pub-d7686b7c26dd403187af8d3e6340fc6c.r2.dev/items/a44fb3ced995/context-dev-web-data-api-for-ai-agents-scrape-search-crawl.mp4",
@@ -169,7 +230,7 @@
     "source": "x.com",
     "category": "Illustration",
     "style": [
-      "Generative UI",
+      "Generative",
       "Dark"
     ],
     "sourceUrl": "https://x.com/i/history/bookmarks/1705105635459645811",
@@ -182,8 +243,10 @@
     "id": "1224d8078460",
     "title": "hope brand",
     "source": "@studiobakers",
-    "category": "",
-    "style": [],
+    "category": "Brand Design",
+    "style": [
+      "Light"
+    ],
     "sourceUrl": "https://x.com/studiobakers/status/2113574905274933489",
     "imageUrl": "https://pub-d7686b7c26dd403187af8d3e6340fc6c.r2.dev/items/1224d8078460/hope-brand.jpg",
     "images": [
@@ -199,8 +262,10 @@
     "id": "8848f025fc81",
     "title": "https://essential.com by https://s.engineering",
     "source": "@s7rx_com",
-    "category": "",
-    "style": [],
+    "category": "Website Design",
+    "style": [
+      "Colourful"
+    ],
     "sourceUrl": "https://x.com/s7rx_com/status/2113980626659672327",
     "imageUrl": "https://pub-d7686b7c26dd403187af8d3e6340fc6c.r2.dev/items/8848f025fc81/https-essential-com-by-https-s-engineering.jpg",
     "images": [
@@ -215,8 +280,10 @@
     "id": "b1a022fe9342",
     "title": "s.engineering",
     "source": "s.engineering",
-    "category": "",
-    "style": [],
+    "category": "Website Design",
+    "style": [
+      "Colourful"
+    ],
     "sourceUrl": "https://s.engineering/",
     "imageUrl": "https://pub-d7686b7c26dd403187af8d3e6340fc6c.r2.dev/items/b1a022fe9342/s-engineering.jpg",
     "videoUrl": "https://pub-d7686b7c26dd403187af8d3e6340fc6c.r2.dev/items/b1a022fe9342/s-engineering.mp4",
@@ -227,7 +294,7 @@
     "id": "1eb75fcc452c",
     "title": "early concepts for bem",
     "source": "@ayushsoni_io",
-    "category": "Reference Material",
+    "category": "Brand Design",
     "style": [
       "Dark",
       "Colourful"
@@ -239,23 +306,13 @@
     "publishedDate": "2026-10-22"
   },
   {
-    "id": "47ac94eb6c74",
-    "title": "canvas-design — anthropics/skills",
-    "source": "skills.sh",
-    "category": "Skills",
-    "style": [],
-    "sourceUrl": "https://www.skills.sh/anthropics/skills/canvas-design",
-    "imageUrl": "https://pub-d7686b7c26dd403187af8d3e6340fc6c.r2.dev/items/3b622624-7aee-8191-9463-fd3c12066a81/skills-sh.jpg",
-    "videoUrl": "https://pub-d7686b7c26dd403187af8d3e6340fc6c.r2.dev/items/3b622624-7aee-8191-9463-fd3c12066a81/skills-sh.mp4",
-    "curationNote": "",
-    "publishedDate": "2026-08-08"
-  },
-  {
     "id": "c18c737e2b14",
     "title": "Chat app components.",
     "source": "@roman_designer",
     "category": "Product Design",
-    "style": [],
+    "style": [
+      "Chat"
+    ],
     "sourceUrl": "https://x.com/roman_designer/status/1999843762017583515",
     "imageUrl": "https://pub-d7686b7c26dd403187af8d3e6340fc6c.r2.dev/items/3b622624-7aee-81d6-b7f9-e17d9d766b0b/chat-components.jpg",
     "videoUrl": "",
@@ -267,7 +324,10 @@
     "title": "Nia - Agentic Search for External and Internal Data.",
     "source": "trynia.ai",
     "category": "Product Design",
-    "style": [],
+    "style": [
+      "Search",
+      "Agent"
+    ],
     "sourceUrl": "https://www.trynia.ai/",
     "imageUrl": "https://pub-d7686b7c26dd403187af8d3e6340fc6c.r2.dev/items/39d22624-7aee-819e-ae63-c4e70493635c/trynia-ai.jpg",
     "videoUrl": "https://pub-d7686b7c26dd403187af8d3e6340fc6c.r2.dev/items/39d22624-7aee-819e-ae63-c4e70493635c/trynia-ai.mp4",
@@ -290,8 +350,10 @@
     "id": "5efd87aa41f5",
     "title": "Still think about this particular mark for “io”",
     "source": "@johnpalmer",
-    "category": "Product Design",
-    "style": [],
+    "category": "Brand Design",
+    "style": [
+      "Minimal"
+    ],
     "sourceUrl": "https://x.com/johnpalmer/status/1968371410872713269",
     "imageUrl": "https://pub-d7686b7c26dd403187af8d3e6340fc6c.r2.dev/items/3b622624-7aee-8169-96d7-f988a47978fe/io-mark.jpg",
     "videoUrl": "",
@@ -316,12 +378,11 @@
     "source": "d2w9rnfcy7mm78.cloudfront.net",
     "category": "Product Design",
     "style": [
+      "AI Interface",
       "Dark",
       "Gradient",
       "Minimal",
-      "Interface",
-      "Onboarding",
-      "Generative UI"
+      "Onboarding"
     ],
     "sourceUrl": "https://d2w9rnfcy7mm78.cloudfront.net/33225611/original_c6084a8fd3779c2ea4460d9fb12dd00e.gif?1735252653?bc=0",
     "imageUrl": "https://pub-d7686b7c26dd403187af8d3e6340fc6c.r2.dev/items/390226247aee8165b28cc6aed81e7eda/image.gif",
@@ -335,10 +396,9 @@
     "source": "@nitishkmrk",
     "category": "Product Design",
     "style": [
-      "Clean",
+      "AI Interface",
       "Minimal",
-      "Interface",
-      "Chat UI",
+      "Chat",
       "Navigation"
     ],
     "sourceUrl": "https://x.com/nitishkmrk/status/1980523444807635342",
@@ -353,6 +413,7 @@
     "source": "cursor.com",
     "category": "Product Design",
     "style": [
+      "Agent",
       "Dashboard",
       "Navigation"
     ],
@@ -368,8 +429,8 @@
     "source": "@joycebydsgn",
     "category": "Product Design",
     "style": [
-      "Interface",
-      "Generative UI",
+      "AI Interface",
+      "Agent",
       "Dashboard"
     ],
     "sourceUrl": "https://x.com/joycebydsgn/status/1943323301075378558",
@@ -384,12 +445,11 @@
     "source": "@oguzyagizkara",
     "category": "Website Design",
     "style": [
+      "AI Interface",
+      "Search",
+      "Chat",
       "Light",
-      "Clean",
-      "Minimal",
-      "Interface",
-      "Chat UI",
-      "Generative UI"
+      "Minimal"
     ],
     "sourceUrl": "https://x.com/oguzyagizkara/status/2029496282985677074",
     "imageUrl": "https://pub-d7686b7c26dd403187af8d3e6340fc6c.r2.dev/items/38f226247aee816e9e25c0a7c01b5557/image.jpg",
@@ -403,7 +463,7 @@
     "source": "@senyil",
     "category": "Product Design",
     "style": [
-      "Generative UI"
+      "AI Interface"
     ],
     "sourceUrl": "https://x.com/senyil/status/2000579667888324987",
     "imageUrl": "https://pub-d7686b7c26dd403187af8d3e6340fc6c.r2.dev/items/38f226247aee811f854cd5e98175359e/image.jpg",
@@ -417,6 +477,7 @@
     "source": "@oguzyagizkara",
     "category": "Product Design",
     "style": [
+      "Minimal",
       "Navigation"
     ],
     "sourceUrl": "https://x.com/oguzyagizkara/status/1973294956367286379",
@@ -431,7 +492,7 @@
     "source": "oriorai.com",
     "category": "Website Design",
     "style": [
-      "Interface"
+      "AI Interface"
     ],
     "sourceUrl": "https://www.oriorai.com/",
     "imageUrl": "https://pub-d7686b7c26dd403187af8d3e6340fc6c.r2.dev/items/38f226247aee81f58d76f6e3b41b89f4/image.png",
