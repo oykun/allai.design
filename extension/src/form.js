@@ -69,6 +69,8 @@
     .chip:hover { border-color: #6b6b6b; }
     .chip.on { background: #ececec; color: #111; border-color: #ececec; }
     input.more { padding: 5px 9px; font-size: 12px; }
+    .check.shot { height: auto; margin-top: 6px; font-size: 12px; color: #8a8a8a; }
+    .check.shot input { width: 14px; height: 14px; }
   `;
 
   function el(tag, attrs = {}, children = []) {
@@ -128,11 +130,12 @@
   }
 
   /**
-   * @param payload  what the content script read: source, page, title, image, author, authorName, text, published, siteKind
-   * @param options  { config: {categories, styles, projects, online}, save: (data) => Promise<reply>, inline?: boolean, onClose?: () => void }
+   * @param payload  what the content script read: source, page, title, image, screenshot, author, authorName, text, published, siteKind
+   * @param options  { config: {categories, styles, projects, online, wholePage}, save: (data) => Promise<reply>,
+   *                   fullPage?: () => Promise<{shots, total, width} | {error}>, rememberWholePage?: (on) => void, inline?: boolean, onClose?: () => void }
    */
   function show(payload, options) {
-    const { config = {}, save, inline = false, onClose } = options;
+    const { config = {}, save, fullPage, rememberWholePage, inline = false, onClose } = options;
     const categories = config.categories || [];
 
     // Only one form at a time.
@@ -171,14 +174,19 @@
     const saveBtn = el("button", { class: "primary", type: "submit" }, ["Save", el("kbd", { text: "↵" })]);
     const cancelBtn = el("button", { type: "button", text: "Cancel", onclick: () => close() });
 
-    const thumb = payload.image
-      ? el("img", { class: "thumb", src: payload.image, alt: "" })
+    // A page capture can trade the visible screenshot for the whole page, taken on save
+    // (the form steps aside while the page scrolls). The choice sticks between captures.
+    const wholePage = el("input", { type: "checkbox", checked: Boolean(config.wholePage), onchange: () => rememberWholePage?.(wholePage.checked) });
+    const shotToggle = payload.screenshot && fullPage ? el("label", { class: "check shot" }, [wholePage, "Whole page"]) : null;
+
+    const thumb = payload.image || payload.screenshot
+      ? el("img", { class: "thumb", src: payload.image || payload.screenshot, alt: "" })
       : el("div", { class: "thumb empty", text: "page" });
 
     const form = el("form", { class: "card", novalidate: true }, [
       el("div", { class: "head" }, [
         thumb,
-        el("div", { class: "meta" }, [el("div", { class: "from" }, fromLine), title]),
+        el("div", { class: "meta" }, [el("div", { class: "from" }, fromLine), title, shotToggle]),
       ]),
       el("label", {}, ["What I like ", el("span", { class: "req", text: "*" })]),
       why,
@@ -228,9 +236,25 @@
       }
       busy = true;
       saveBtn.disabled = true;
+      let screenshot = payload.screenshot;
+      const notes = [];
+      if (shotToggle && wholePage.checked) {
+        setStatus("Capturing the whole page…");
+        host.style.visibility = "hidden";
+        try {
+          const reply = await fullPage();
+          if (reply?.error) throw new Error(reply.error);
+          if (reply?.shots?.length > 1) screenshot = await stitch(reply);
+        } catch (err) {
+          notes.push(`whole page failed (${err?.message || err}), kept the visible part`);
+        } finally {
+          host.style.visibility = "";
+        }
+      }
       setStatus("Saving…");
       const data = {
         ...payload,
+        screenshot,
         title: title.value.trim() || payload.title,
         why: reason,
         category: category.value,
@@ -245,9 +269,10 @@
         reply = { ok: false, error: String(err?.message || err) };
       }
       if (reply?.ok) {
-        const warn = reply.warnings?.length ? ` (${reply.warnings.join("; ")})` : "";
+        const warnings = [...notes, ...(reply.warnings || [])];
+        const warn = warnings.length ? ` (${warnings.join("; ")})` : "";
         setStatus(`Saved · ${reply.noteName || "note written"}${warn}`, "ok");
-        setTimeout(close, reply.warnings?.length ? 2600 : 900);
+        setTimeout(close, warnings.length ? 2600 : 900);
       } else {
         busy = false;
         saveBtn.disabled = false;
@@ -268,6 +293,36 @@
     (inline ? document.body : document.documentElement).append(host);
     why.focus();
     return { close };
+  }
+
+  // Whole page: the background scrolled the tab a screen at a time and took one
+  // screenshot per stop. Each lands at its scroll offset; the last one overlaps.
+  const MAX_AREA = 16e6; // output pixels, under Safari's canvas limit
+  const MAX_SIDE = 32000;
+
+  async function stitch({ shots, total, width }) {
+    const images = await Promise.all(shots.map((s) => loadImage(s.url)));
+    const k = images[0].naturalWidth / width; // device pixels per CSS pixel
+    const fullW = images[0].naturalWidth;
+    const fullH = Math.round(total * k);
+    const scale = Math.min(1, Math.sqrt(MAX_AREA / (fullW * fullH)), MAX_SIDE / fullH);
+    const canvas = document.createElement("canvas");
+    canvas.width = Math.round(fullW * scale);
+    canvas.height = Math.round(fullH * scale);
+    const ctx = canvas.getContext("2d");
+    images.forEach((img, i) => {
+      ctx.drawImage(img, 0, Math.round(shots[i].y * k * scale), canvas.width, Math.round(img.naturalHeight * scale));
+    });
+    return canvas.toDataURL("image/jpeg", 0.88);
+  }
+
+  function loadImage(src) {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.onload = () => resolve(img);
+      img.onerror = () => reject(new Error("could not read a screenshot"));
+      img.src = src;
+    });
   }
 
   globalThis.__allaiForm = { show, splitList };

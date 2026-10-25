@@ -43,6 +43,7 @@ What the page gave us (read by `content.js`, best effort):
 | `image` | no | Full-resolution URL of the clicked image (`name=orig` on X). Empty for "Add page to allai". |
 | `images` | no | Every picture of the post, full resolution, the clicked one first (an X gallery is one item). The receiver downloads each into the item's folder and links them all in the note; `image` stays the cover. |
 | `imageAlt` | no | The image's alt text, used as the Markdown alt. |
+| `screenshot` | no | "Add to AllAI" on a page with no picture of its own: the visible tab as a JPEG data URL, taken before the form opens; with **Whole page** ticked in the form (in-page or the fallback window), the whole page instead: the background scrolls the tab and screenshots each stop, the form stitches them on save (window-scrolled pages only, cut at 20,000 CSS px). The receiver saves it as `<id>/<slug>.jpg`, links it in the note and sets `screenshot: true`; the sync then publishes it instead of recording the page (a recording can't get past a sign-in). |
 | `author` | no | `@handle` on X; empty elsewhere. |
 | `authorName` | no | Display name on X; `<meta name="author">` elsewhere. |
 | `text` | no | The post's text on X; the page's meta description elsewhere. |

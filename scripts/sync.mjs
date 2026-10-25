@@ -24,6 +24,7 @@
 
 import "dotenv/config";
 import { readFile, writeFile, mkdir } from "node:fs/promises";
+import { extname } from "node:path";
 import { execFile } from "node:child_process";
 import { promisify } from "node:util";
 import { CATEGORIES, readItems, setFrontmatterKeys, slugify } from "./lib/vault.mjs";
@@ -75,6 +76,13 @@ async function hostMedia(item) {
       updates.image = (await uploadToR2(media.poster, `${key}/${slug}.${ext}`)).url;
     }
     return updates;
+  }
+
+  // A page saved with the extension: publish what was on screen. A recording would
+  // show the page signed out, and the screenshot is the part Oykun picked.
+  if (item.screenshot) {
+    const ext = extname(item.screenshot).toLowerCase() || ".jpg";
+    return { image: (await uploadToR2(item.screenshot, `${key}/${slug}${ext}`)).url };
   }
 
   // Anything else is a web page: record it. Never fall back to og:image —

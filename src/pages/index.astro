@@ -369,6 +369,11 @@ body {
     // Rebuild the media rather than moving the card's node, so the grid
     // underneath keeps rendering while the modal is open.
     modalMedia.innerHTML = '';
+    // A whole-page screenshot (over twice as tall as wide) scrolls in its own box,
+    // and that box is what grows out of the card.
+    const tall = cardMedia instanceof HTMLImageElement && cardMedia.naturalHeight > cardMedia.naturalWidth * 2;
+    modalMedia.classList.toggle('modal-media--tall', !d.video && tall);
+    modalMedia.scrollTop = 0;
     if (d.video) {
       const v = document.createElement('video');
       v.src = d.video;
@@ -398,13 +403,16 @@ body {
       // Blank the thumbnail for the duration: with both on screen it reads as a
       // copy flying out, not as the thumbnail itself growing.
       cardMedia.style.visibility = 'hidden';
-      whenSized(target, () => morph(target, from));
+      whenSized(target, () => morph(morphTarget(), from));
     }
   }
 
   function finishClose() {
     modal.hidden = true;
     modalMedia.innerHTML = ''; // stops any playing video
+    modalMedia.classList.remove('modal-media--tall');
+    // The box outlives the modal, so the close morph's held end state must not.
+    for (const a of modalMedia.getAnimations()) { a.onfinish = a.oncancel = null; a.cancel(); }
     document.body.style.overflow = '';
     if (openedFromEl) openedFromEl.style.visibility = '';
     openedFromEl = null;
@@ -413,8 +421,16 @@ body {
     openedFrom = null;
   }
 
+  // The element that flies between card and modal: the media, or for a tall
+  // screenshot its scrolling box (the image inside it is the whole page long).
+  function morphTarget() {
+    return modalMedia.classList.contains('modal-media--tall')
+      ? modalMedia
+      : modalMedia.firstElementChild as HTMLElement;
+  }
+
   function closeModal() {
-    const target = modalMedia.firstElementChild as HTMLElement | null;
+    const target = modalMedia.firstElementChild ? morphTarget() : null;
 
     // Shrink back into the card it came from — unless a filter has since
     // hidden that card, in which case there's nothing to return to.

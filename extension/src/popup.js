@@ -14,6 +14,8 @@ const api = globalThis.browser ?? globalThis.chrome;
     inline: true,
     config,
     save: (data) => api.runtime.sendMessage({ type: "allai:save", payload: data }),
+    fullPage: pending.tabId ? () => api.runtime.sendMessage({ type: "allai:whole-page", tabId: pending.tabId, windowId: pending.windowId }) : null,
+    rememberWholePage: (on) => api.runtime.sendMessage({ type: "allai:set-whole-page", on }),
     onClose: () => window.close(),
   });
 })();

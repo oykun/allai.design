@@ -48,7 +48,7 @@ const run = promisify(execFile);
 const VERSION = "1.0.0";
 const PORT = Number(process.env.ALLAI_INBOX_PORT) || 7711;
 const INBOX_DIR = resolve(expandHome(process.env.ALLAI_INBOX_DIR || "~/Obsidian/_AI OS/allai/inbox"));
-const MAX_BODY = 1024 * 1024; // a capture is text and URLs; images are fetched, not posted
+const MAX_BODY = 24 * 1024 * 1024; // text and URLs, plus a page capture's screenshot (a JPEG data URL)
 const MAX_IMAGE = 50 * 1024 * 1024;
 const MAX_VIDEO = 200 * 1024 * 1024;
 // The extension waits 30 s for a save; videos get what's left after the pictures.
@@ -250,6 +250,15 @@ function normalize(payload) {
   }
   if (images.length > 20) throw new BadRequest("'images': at most 20 per capture");
 
+  // A page capture: what was on screen, sent inline because there is no URL to fetch it from.
+  let screenshot = null;
+  const shot = asText(payload.screenshot);
+  if (shot && !images.length) {
+    const m = shot.match(/^data:image\/(jpeg|png|webp);base64,([A-Za-z0-9+/=]+)$/);
+    if (!m) throw new BadRequest("'screenshot' must be a base64 JPEG, PNG or WebP data URL");
+    screenshot = { ext: m[1] === "jpeg" ? ".jpg" : `.${m[1]}`, buffer: Buffer.from(m[2], "base64") };
+  }
+
   const category = asText(payload.category);
   if (category && !CATEGORIES.includes(category)) {
     throw new BadRequest(`'category' must be one of: ${CATEGORIES.join(" / ")} (or empty)`);
@@ -273,6 +282,7 @@ function normalize(payload) {
     page,
     image: images[0] || "",
     images,
+    screenshot,
     imageAlt: asText(payload.imageAlt),
     title,
     why,
@@ -303,6 +313,7 @@ function renderNote(c, savedRels, videoRels = []) {
     style: c.style,
     projects: c.projects.map((p) => `[[${p}]]`),
     publish: c.publish,
+    ...(c.screenshot ? { screenshot: true } : {}),
   };
 
   const alt = (c.imageAlt || c.title).replace(/[\[\]]/g, "");
@@ -312,6 +323,7 @@ function renderNote(c, savedRels, videoRels = []) {
     const label = c.images.length > 1 ? `${alt} ${i + 1}` : alt;
     return rel ? `![${label}](${encodeURI(rel).replace(/[()]/g, (ch) => (ch === "(" ? "%28" : "%29"))})` : `![${label}](${remote})`;
   });
+  if (c.screenshot && savedRels[0]) imageLinks.push(`![${alt}](${encodeURI(savedRels[0]).replace(/[()]/g, (ch) => (ch === "(" ? "%28" : "%29"))})`);
   const where = c.page !== c.source ? ` from ${c.page}` : "";
   const via = c.client?.browser ? ` (${c.client.browser})` : "";
 
@@ -351,6 +363,15 @@ async function handleCapture(payload) {
       savedRels.push(null);
       warnings.push(`image${c.images.length > 1 ? ` ${i + 1}` : ""} not downloaded: ${err.message}; the note links the remote URL instead`);
     }
+  }
+
+  if (c.screenshot) {
+    if (c.screenshot.buffer.byteLength > MAX_IMAGE) throw new BadRequest("'screenshot' is too large");
+    await mkdir(dir, { recursive: true });
+    const file = await uniquePath(dir, base, c.screenshot.ext);
+    await writeFile(file, c.screenshot.buffer);
+    savedRels.push(`${c.id}/${file.slice(dir.length + 1)}`);
+    bytes += c.screenshot.buffer.byteLength;
   }
 
   // An X post's videos: <slug>.mp4, <slug>-2.mp4, … beside the pictures.

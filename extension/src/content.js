@@ -32,6 +32,8 @@
       globalThis.__allaiForm.show(payload, {
         config: message.config,
         save: (data) => api.runtime.sendMessage({ type: "allai:save", payload: data }),
+        fullPage: () => api.runtime.sendMessage({ type: "allai:whole-page" }),
+        rememberWholePage: (on) => api.runtime.sendMessage({ type: "allai:set-whole-page", on }),
       });
       sendResponse({ shown: true });
     } catch (err) {
@@ -69,6 +71,8 @@
     } else {
       Object.assign(payload, fromPage());
     }
+    // A page with no picture of its own keeps the screenshot the background took.
+    if (!payload.image && message.screenshot) payload.screenshot = message.screenshot;
     return payload;
   }
 

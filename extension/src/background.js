@@ -101,7 +101,8 @@ async function config() {
   } catch {
     // Not running — the form still opens; the save explains what to start.
   }
-  return { receiver, categories, styles: vocab.styles, projects: vocab.projects, online };
+  const { wholePage } = await api.storage.local.get({ wholePage: false });
+  return { receiver, categories, styles: vocab.styles, projects: vocab.projects, online, wholePage };
 }
 
 function browserName() {
@@ -162,12 +163,17 @@ async function capture(info, tab) {
     const [active] = await api.tabs.query({ active: true, currentWindow: true });
     tab = active;
   }
+  const menu = clickedImage(info) ? "image" : "page";
   const request = {
     type: "allai:collect",
-    menu: clickedImage(info) ? "image" : "page",
-    srcUrl: clickedImage(info) ? info.srcUrl || "" : "",
+    menu,
+    srcUrl: menu === "image" ? info.srcUrl || "" : "",
     pageUrl: info.pageUrl || tab?.url || "",
     title: tab?.title || "",
+    // A page capture keeps what was on screen, taken before the form covers it: the
+    // sync's own recording can't get past a sign-in, and a page is often saved for
+    // one part of it. Unused when the page itself yields a picture (an X post).
+    screenshot: menu === "page" ? await screenshot(tab) : "",
     config: await config(),
   };
   const frameId = info.frameId || 0;
@@ -180,6 +186,12 @@ async function capture(info, tab) {
   }
 
   try {
+    // A copy left from before an extension update still holds the guards but no
+    // longer answers; clear them so the fresh copy sets itself up.
+    await api.scripting.executeScript({
+      target: { tabId: tab.id, frameIds: [frameId] },
+      func: () => { delete globalThis.__allaiContent; delete globalThis.__allaiForm; },
+    });
     await api.scripting.executeScript({
       target: { tabId: tab.id, frameIds: [frameId] },
       files: ["form.js", "content.js"],
@@ -192,16 +204,87 @@ async function capture(info, tab) {
   }
 
   await openWindow({
+    tabId: tab?.id,
+    windowId: tab?.windowId,
     source: request.pageUrl,
     page: request.pageUrl,
     title: request.title,
     image: request.menu === "image" ? request.srcUrl : "",
+    screenshot: request.screenshot,
     author: "",
     authorName: "",
     text: "",
     published: "",
     siteKind: "web",
   });
+}
+
+/** The visible part of the tab as a JPEG data URL, or "" when the browser refuses (a browser page, no permission). */
+async function screenshot(tab) {
+  try {
+    return await api.tabs.captureVisibleTab(tab?.windowId, { format: "jpeg", quality: 90 });
+  } catch (err) {
+    console.warn("allai: could not capture the visible tab", err);
+    return "";
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Whole page: scroll the tab a screen at a time and screenshot each stop. Fixed
+// and sticky parts (headers, chat bubbles) are hidden after the first stop so
+// they appear once, at the top. The form stitches the stops (it has a canvas).
+
+const SETTLE_MS = 600; // lazy images and scroll-in motion land; Chrome allows 2 captures a second
+const MAX_PAGE = 20000; // CSS px; past this the page is cut, not shrunk to a sliver
+
+async function inTab(tabId, func, args = []) {
+  const [result] = await api.scripting.executeScript({ target: { tabId }, func, args });
+  return result?.result;
+}
+
+async function wholePage(tabId, windowId) {
+  if (tabId == null) throw new Error("no tab to capture");
+  const page = await inTab(tabId, (max) => {
+    const root = document.scrollingElement || document.documentElement;
+    return { viewH: innerHeight, width: innerWidth, total: Math.min(root.scrollHeight, max), startY: scrollY };
+  }, [MAX_PAGE]);
+  // Nothing below the fold, or the page scrolls an inner panel (many web apps):
+  // the visible screenshot already is the whole thing.
+  if (!page || page.total <= page.viewH + 1) return { shots: [] };
+
+  const shots = [];
+  try {
+    for (let y = 0; ; ) {
+      await inTab(tabId, (to) => scrollTo(0, to), [y]);
+      await new Promise((r) => setTimeout(r, SETTLE_MS));
+      const at = Math.round(await inTab(tabId, () => scrollY));
+      const url = await api.tabs.captureVisibleTab(windowId, { format: "jpeg", quality: 90 });
+      shots.push({ y: at, url });
+      if (shots.length === 1) {
+        await inTab(tabId, () => {
+          const hidden = [];
+          for (const node of document.querySelectorAll("body *")) {
+            if (node.id === "allai-capture-host") continue;
+            const pos = getComputedStyle(node).position;
+            if (pos === "fixed" || pos === "sticky") {
+              hidden.push([node, node.style.visibility]);
+              node.style.visibility = "hidden";
+            }
+          }
+          globalThis.__allaiHidden = hidden;
+        });
+      }
+      if (at + page.viewH >= page.total || (shots.length > 1 && at === shots[shots.length - 2].y)) break;
+      y = at + page.viewH;
+    }
+  } finally {
+    await inTab(tabId, (startY) => {
+      for (const [node, value] of globalThis.__allaiHidden || []) node.style.visibility = value;
+      delete globalThis.__allaiHidden;
+      scrollTo(0, startY);
+    }, [page.startY]).catch(() => {});
+  }
+  return { shots, total: page.total, width: page.width };
 }
 
 async function openWindow(payload) {
@@ -221,10 +304,14 @@ globalThis.__allaiCapture = capture;
 // ---------------------------------------------------------------------------
 // Messages from the form (in-page overlay or the fallback window)
 
-api.runtime.onMessage.addListener((message, _sender, sendResponse) => {
+api.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (!message || typeof message.type !== "string") return false;
   const handlers = {
     "allai:config": () => config(),
+    // One stop of a whole-page capture: the content script scrolls, this takes the picture.
+    "allai:whole-page": () =>
+      wholePage(message.tabId ?? sender.tab?.id, message.windowId ?? sender.tab?.windowId).catch((err) => ({ error: String(err?.message || err) })),
+    "allai:set-whole-page": () => api.storage.local.set({ wholePage: Boolean(message.on) }),
     "allai:save": () => save(message.payload || {}),
     "allai:set-receiver": async () => {
       const receiver = String(message.receiver || DEFAULT_RECEIVER).trim() || DEFAULT_RECEIVER;

@@ -24,7 +24,7 @@
  */
 
 import { readFile, readdir, writeFile, stat } from "node:fs/promises";
-import { join, basename } from "node:path";
+import { join, basename, dirname } from "node:path";
 import { homedir } from "node:os";
 import { createHash } from "node:crypto";
 import { parse as parseYaml } from "yaml";
@@ -202,6 +202,17 @@ export function notePlainText(md) {
     .join(" ");
 }
 
+/** The first image the note embeds from beside itself (the receiver's `<id>/<slug>.jpg`), as an absolute path. */
+function firstLocalImageIn(body, file) {
+  const m = body.match(/!\[[^\]]*\]\((?!https?:)([^)\s]+)\)/);
+  if (!m) return "";
+  try {
+    return join(dirname(file), decodeURI(m[1]));
+  } catch {
+    return "";
+  }
+}
+
 function firstImageIn(body) {
   const m = body.match(/!\[[^\]]*\]\((https?:\/\/[^)\s]+)\)/);
   return m ? m[1] : "";
@@ -244,6 +255,8 @@ export async function readItem(file) {
     imageUrl: asString(fm.image),
     videoUrl: asString(fm.video),
     clippedImage: firstImageIn(body),
+    // A page saved by the extension: what was on screen, kept as the item's picture.
+    screenshot: asBool(fm.screenshot) ? firstLocalImageIn(body, file) : "",
     noteMarkdown,
     curationNote: notePlainText(noteMarkdown),
     isX: isXUrl(sourceUrl),
