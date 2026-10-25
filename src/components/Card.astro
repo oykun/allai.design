@@ -1,6 +1,8 @@
 ---
 const { item } = Astro.props;
-const { title, source, category, style, sourceUrl, imageUrl, videoUrl, curationNote, publishedDate } = item;
+const { title, source, category, style, sourceUrl, imageUrl, images = [], videoUrl, curationNote, publishedDate } = item;
+// A post with several pictures: the card shows the cover, the detail view all of them.
+const gallery = !videoUrl && images.length > 1 ? images : [];
 ---
 
 <article
@@ -11,6 +13,7 @@ const { title, source, category, style, sourceUrl, imageUrl, videoUrl, curationN
   data-title={title}
   data-source-url={sourceUrl}
   data-image={imageUrl}
+  data-images={gallery.length ? JSON.stringify(gallery) : undefined}
   data-video={videoUrl}
   data-note={curationNote}
   data-date={publishedDate}
@@ -22,5 +25,6 @@ const { title, source, category, style, sourceUrl, imageUrl, videoUrl, curationN
         ? <img src={imageUrl} alt={title} loading="lazy" />
         : <div class="card-image-placeholder">no image</div>
     }
+    {gallery.length > 0 && <span class="card-count" aria-label={`${gallery.length} images`}>{gallery.length}</span>}
   </button>
 </article>

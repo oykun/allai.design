@@ -372,7 +372,9 @@ body {
     // A whole-page screenshot (over twice as tall as wide) scrolls in its own box,
     // and that box is what grows out of the card.
     const tall = cardMedia instanceof HTMLImageElement && cardMedia.naturalHeight > cardMedia.naturalWidth * 2;
-    modalMedia.classList.toggle('modal-media--tall', !d.video && tall);
+    const gallery: string[] = d.images ? JSON.parse(d.images) : [];
+    modalMedia.classList.toggle('modal-media--tall', !d.video && !gallery.length && tall);
+    modalMedia.classList.toggle('modal-media--stack', !d.video && gallery.length > 1);
     modalMedia.scrollTop = 0;
     if (d.video) {
       const v = document.createElement('video');
@@ -382,6 +384,13 @@ body {
       v.controls = true;
       modalMedia.append(v);
       forcePlay(v);
+    } else if (gallery.length > 1) {
+      gallery.forEach((src, i) => {
+        const img = document.createElement('img');
+        img.src = src;
+        img.alt = `${d.title || ''} ${i + 1}`;
+        modalMedia.append(img);
+      });
     } else if (d.image) {
       const img = document.createElement('img');
       img.src = d.image;
@@ -410,7 +419,7 @@ body {
   function finishClose() {
     modal.hidden = true;
     modalMedia.innerHTML = ''; // stops any playing video
-    modalMedia.classList.remove('modal-media--tall');
+    modalMedia.classList.remove('modal-media--tall', 'modal-media--stack');
     // The box outlives the modal, so the close morph's held end state must not.
     for (const a of modalMedia.getAnimations()) { a.onfinish = a.oncancel = null; a.cancel(); }
     document.body.style.overflow = '';
@@ -424,7 +433,7 @@ body {
   // The element that flies between card and modal: the media, or for a tall
   // screenshot its scrolling box (the image inside it is the whole page long).
   function morphTarget() {
-    return modalMedia.classList.contains('modal-media--tall')
+    return modalMedia.classList.contains('modal-media--tall') || modalMedia.classList.contains('modal-media--stack')
       ? modalMedia
       : modalMedia.firstElementChild as HTMLElement;
   }

@@ -24,7 +24,7 @@
 
 import "dotenv/config";
 import { readFile, writeFile, mkdir } from "node:fs/promises";
-import { extname } from "node:path";
+import { basename, extname } from "node:path";
 import { execFile } from "node:child_process";
 import { promisify } from "node:util";
 import { CATEGORIES, readItems, setFrontmatterKeys, slugify } from "./lib/vault.mjs";
@@ -122,6 +122,34 @@ async function ensureMedia(items) {
   return failed;
 }
 
+// A post with several pictures keeps them all: the cover is `image`, the rest go to R2
+// beside it and the whole list is written to the note as `gallery`. Runs after
+// ensureMedia, so the cover is already hosted; a gallery is only redone when the
+// number of local pictures changes.
+async function ensureGalleries(items) {
+  const needs = items.filter((i) => !i.videoUrl && isOnR2(i.imageUrl) && i.localImages.length > 1 && i.gallery.length !== i.localImages.length);
+  if (!needs.length) return;
+  if (DRY) {
+    warn(needs, "have more than one picture to host — a real run uploads them");
+    return;
+  }
+  for (const item of needs) {
+    console.log(`  → hosting gallery: ${item.title} (${item.localImages.length} pictures)`);
+    try {
+      const urls = [item.imageUrl];
+      for (const file of item.localImages.slice(1)) {
+        urls.push((await uploadToR2(file, `items/${item.id}/${basename(file)}`)).url);
+      }
+      await setFrontmatterKeys(item.file, { gallery: urls });
+      item.gallery = urls;
+      console.log(`    ${urls.length} pictures → R2`);
+    } catch (err) {
+      console.log(`    ✗ ${err.message} (the cover alone is shown)`);
+    }
+  }
+  console.log();
+}
+
 function toPublic(item) {
   return {
     id: item.id,
@@ -131,6 +159,7 @@ function toPublic(item) {
     style: item.style,
     sourceUrl: item.sourceUrl,
     imageUrl: item.imageUrl,
+    ...(item.gallery.length > 1 && item.gallery.every(isOnR2) ? { images: item.gallery } : {}),
     videoUrl: item.videoUrl,
     curationNote: item.curationNote,
     publishedDate: item.created,
@@ -194,6 +223,7 @@ warn(published.filter((i) => !i.curationNote), "have no 'What I like' note — t
 
 const publishable = published.filter((i) => i.sourceUrl);
 const failed = await ensureMedia(publishable);
+await ensureGalleries(publishable.filter((i) => !failed.includes(i)));
 const hosted = publishable.filter((i) => !failed.includes(i) && (isOnR2(i.imageUrl) || isOnR2(i.videoUrl)));
 if (!DRY) warn(failed, "could not get media — left off the site until fixed");
 

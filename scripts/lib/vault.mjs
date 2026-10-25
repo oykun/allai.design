@@ -202,15 +202,17 @@ export function notePlainText(md) {
     .join(" ");
 }
 
-/** The first image the note embeds from beside itself (the receiver's `<id>/<slug>.jpg`), as an absolute path. */
-function firstLocalImageIn(body, file) {
-  const m = body.match(/!\[[^\]]*\]\((?!https?:)([^)\s]+)\)/);
-  if (!m) return "";
-  try {
-    return join(dirname(file), decodeURI(m[1]));
-  } catch {
-    return "";
+/** Every image the note embeds from beside itself (the receiver's `<id>/<slug>.jpg`, `<slug>-2.jpg`, …), as absolute paths, in order. */
+function localImagesIn(body, file) {
+  const out = [];
+  for (const m of body.matchAll(/!\[[^\]]*\]\((?!https?:)([^)\s]+)\)/g)) {
+    if (!/\.(jpe?g|png|gif|webp|avif)$/i.test(m[1])) continue;
+    try {
+      const path = join(dirname(file), decodeURI(m[1]));
+      if (!out.includes(path)) out.push(path);
+    } catch {}
   }
+  return out;
 }
 
 function firstImageIn(body) {
@@ -256,7 +258,10 @@ export async function readItem(file) {
     videoUrl: asString(fm.video),
     clippedImage: firstImageIn(body),
     // A page saved by the extension: what was on screen, kept as the item's picture.
-    screenshot: asBool(fm.screenshot) ? firstLocalImageIn(body, file) : "",
+    screenshot: asBool(fm.screenshot) ? localImagesIn(body, file)[0] || "" : "",
+    // An X post with several pictures: the receiver's local copies, and their R2 copies once hosted.
+    localImages: localImagesIn(body, file),
+    gallery: asList(fm.gallery),
     noteMarkdown,
     curationNote: notePlainText(noteMarkdown),
     isX: isXUrl(sourceUrl),
@@ -333,7 +338,11 @@ export async function setFrontmatterKeys(file, updates) {
 
   for (const [key, value] of Object.entries(updates)) {
     const idx = lines.findIndex((l) => l.startsWith(`${key}:`));
-    const line = value == null ? null : `${key}: ${JSON.stringify(String(value))}`;
+    const line = value == null
+      ? null
+      : Array.isArray(value)
+        ? [`${key}:`, ...value.map((v) => `  - ${JSON.stringify(String(v))}`)].join(nl)
+        : `${key}: ${JSON.stringify(String(value))}`;
     if (idx >= 0) {
       // Drop any indented continuation (a list value) under the key.
       let end = idx + 1;

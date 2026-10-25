@@ -58,7 +58,21 @@ img {
 
 /* A whole-page screenshot would be a card as long as the page: show its top,
    at most twice as tall as wide. The detail view scrolls the rest. */
-.card-image { container-type: inline-size; }
+.card-image { container-type: inline-size; position: relative; }
+
+/* How many pictures the post has; the detail view shows them all. */
+.card-count {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: rgba(17, 17, 16, 0.6);
+  color: #fff;
+  font-size: 11px;
+  line-height: 1.5;
+  pointer-events: none;
+}
 .card-image img {
   max-height: 200cqw;
   object-fit: cover;
@@ -222,7 +236,8 @@ img {
 
 /* A tall screenshot: a scrolling column as wide as the stage allows, rather
    than the whole page shrunk to a strip. */
-.modal-media--tall {
+.modal-media--tall,
+.modal-media--stack {
   width: min(100%, 1100px);
   max-width: none;
   height: 92vh;
@@ -230,9 +245,18 @@ img {
   overscroll-behavior: contain;
 }
 
-.modal-media--tall img {
+.modal-media--tall img,
+.modal-media--stack img {
   width: 100%;
   max-height: none;
+}
+
+/* A gallery: every picture, one under another. */
+.modal-media--stack {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: min(100%, 900px);
 }
 
 /* The morph animates the media itself, so the chrome around it just fades. */
@@ -348,5 +372,6 @@ img {
 
   .modal-tags { flex-direction: row; flex-wrap: wrap; gap: 8px; }
 
-  .modal-media--tall { height: 80vh; }
+  .modal-media--tall,
+.modal-media--stack { height: 80vh; }
 }
