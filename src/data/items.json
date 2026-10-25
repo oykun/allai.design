@@ -1,5 +1,61 @@
 [
   {
+    "id": "5dab020cc356",
+    "title": "Amie by https://s.engineering",
+    "source": "@s7rx_com",
+    "category": "Illustration",
+    "style": [
+      "3D",
+      "Animation"
+    ],
+    "sourceUrl": "https://x.com/s7rx_com/status/2114122792090444088",
+    "imageUrl": "https://pub-d7686b7c26dd403187af8d3e6340fc6c.r2.dev/items/5dab020cc356/amie-by-https-s-engineering.jpg",
+    "videoUrl": "https://pub-d7686b7c26dd403187af8d3e6340fc6c.r2.dev/items/5dab020cc356/amie-by-https-s-engineering.mp4",
+    "curationNote": "Love this 3D style also very much my style with plain white background with clean top quality 3D objects on it.A perfect example of my style.",
+    "publishedDate": "2026-10-25"
+  },
+  {
+    "id": "ef7686012b21",
+    "title": "Exa",
+    "source": "Exa Labs",
+    "category": "Website Design",
+    "style": [],
+    "sourceUrl": "https://exa.ai/",
+    "imageUrl": "https://pub-d7686b7c26dd403187af8d3e6340fc6c.r2.dev/items/ef7686012b21/exa.jpg",
+    "videoUrl": "",
+    "curationNote": "test",
+    "publishedDate": "2026-10-25"
+  },
+  {
+    "id": "d9dad3d0261c",
+    "title": "Render | The cloud for builders",
+    "source": "render.com",
+    "category": "Illustration",
+    "style": [
+      "Colourful"
+    ],
+    "sourceUrl": "https://render.com/",
+    "imageUrl": "https://pub-d7686b7c26dd403187af8d3e6340fc6c.r2.dev/items/d9dad3d0261c/render-the-cloud-for-builders.jpg",
+    "videoUrl": "",
+    "curationNote": "Love these small pixelated multicolored illustrations.",
+    "publishedDate": "2026-10-25"
+  },
+  {
+    "id": "a2f843460a8a",
+    "title": "The knowledge layer for AI | GitBook",
+    "source": "gitbook.com",
+    "category": "Website Design",
+    "style": [
+      "3D",
+      "Light"
+    ],
+    "sourceUrl": "https://www.gitbook.com/",
+    "imageUrl": "https://pub-d7686b7c26dd403187af8d3e6340fc6c.r2.dev/items/a2f843460a8a/the-knowledge-layer-for-ai-gitbook.jpg",
+    "videoUrl": "",
+    "curationNote": "love that vivid 3d bg on clean white background.",
+    "publishedDate": "2026-10-25"
+  },
+  {
     "id": "42ed04e3516a",
     "title": "ascii + pixel crush",
     "source": "@studiobakers",
@@ -11,6 +67,11 @@
     ],
     "sourceUrl": "https://x.com/studiobakers/status/2111049527797186726",
     "imageUrl": "https://pub-d7686b7c26dd403187af8d3e6340fc6c.r2.dev/items/42ed04e3516a/ascii-pixel-crush.jpg",
+    "images": [
+      "https://pub-d7686b7c26dd403187af8d3e6340fc6c.r2.dev/items/42ed04e3516a/ascii-pixel-crush.jpg",
+      "https://pub-d7686b7c26dd403187af8d3e6340fc6c.r2.dev/items/42ed04e3516a/ascii-pixel-crush-2.jpg",
+      "https://pub-d7686b7c26dd403187af8d3e6340fc6c.r2.dev/items/42ed04e3516a/ascii-pixel-crush-3.jpg"
+    ],
     "videoUrl": "",
     "curationNote": "the abstract style",
     "publishedDate": "2026-10-24"
@@ -25,6 +86,11 @@
     ],
     "sourceUrl": "https://x.com/studiobakers/status/2113577421178024311",
     "imageUrl": "https://pub-d7686b7c26dd403187af8d3e6340fc6c.r2.dev/items/f06af99ec495/cards-handhold.jpg",
+    "images": [
+      "https://pub-d7686b7c26dd403187af8d3e6340fc6c.r2.dev/items/f06af99ec495/cards-handhold.jpg",
+      "https://pub-d7686b7c26dd403187af8d3e6340fc6c.r2.dev/items/f06af99ec495/cards-handhold-2.jpg",
+      "https://pub-d7686b7c26dd403187af8d3e6340fc6c.r2.dev/items/f06af99ec495/cards-handhold-3.jpg"
+    ],
     "videoUrl": "",
     "curationNote": "background aura",
     "publishedDate": "2026-10-24"
@@ -64,6 +130,11 @@
     "style": [],
     "sourceUrl": "https://x.com/studiobakers/status/2113574905274933489",
     "imageUrl": "https://pub-d7686b7c26dd403187af8d3e6340fc6c.r2.dev/items/1224d8078460/hope-brand.jpg",
+    "images": [
+      "https://pub-d7686b7c26dd403187af8d3e6340fc6c.r2.dev/items/1224d8078460/hope-brand.jpg",
+      "https://pub-d7686b7c26dd403187af8d3e6340fc6c.r2.dev/items/1224d8078460/hope-brand-2.jpg",
+      "https://pub-d7686b7c26dd403187af8d3e6340fc6c.r2.dev/items/1224d8078460/hope-brand-3.jpg"
+    ],
     "videoUrl": "",
     "curationNote": "background and presentation",
     "publishedDate": "2026-10-24"
@@ -76,6 +147,10 @@
     "style": [],
     "sourceUrl": "https://x.com/s7rx_com/status/2113980626659672327",
     "imageUrl": "https://pub-d7686b7c26dd403187af8d3e6340fc6c.r2.dev/items/8848f025fc81/https-essential-com-by-https-s-engineering.jpg",
+    "images": [
+      "https://pub-d7686b7c26dd403187af8d3e6340fc6c.r2.dev/items/8848f025fc81/https-essential-com-by-https-s-engineering.jpg",
+      "https://pub-d7686b7c26dd403187af8d3e6340fc6c.r2.dev/items/8848f025fc81/https-essential-com-by-https-s-engineering-2.jpg"
+    ],
     "videoUrl": "",
     "curationNote": "colourful background and the typography. it is clean, modern and colourful.",
     "publishedDate": "2026-10-24"
