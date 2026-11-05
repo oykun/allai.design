@@ -155,7 +155,7 @@
 
     const fromLine = payload.siteKind === "x"
       ? [payload.author && el("b", { text: payload.author }), payload.authorName && payload.authorName !== payload.author ? ` · ${payload.authorName}` : "", " · X", payload.images?.length > 1 ? ` · ${payload.images.length} images` : ""]
-      : [el("b", { text: hostOf(payload.source) }), payload.authorName ? ` · ${payload.authorName}` : ""];
+      : [el("b", { text: hostOf(payload.source) }), payload.authorName ? ` · ${payload.authorName}` : "", payload.video ? " · video" : ""];
 
     const title = el("input", { class: "title", type: "text", value: payload.title || "", placeholder: "Title", "aria-label": "Title" });
     const why = el("textarea", { rows: 3, placeholder: "The specific thing worth keeping — the type, the motion, how the case study is structured…", "aria-label": "What I like" });

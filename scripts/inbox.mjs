@@ -212,18 +212,31 @@ async function xVideos(source) {
   return out;
 }
 
-async function downloadVideo(url, dir, baseName, deadline) {
+const VIDEO_EXT = { "video/mp4": ".mp4", "video/webm": ".webm", "video/quicktime": ".mov" };
+
+async function downloadVideo(url, dir, baseName, deadline, referer) {
   const ms = deadline - Date.now();
   if (ms < 1000) throw new Error("out of time (the sync still hosts it when published)");
-  const res = await fetch(url, { headers: { "User-Agent": "Mozilla/5.0" }, signal: AbortSignal.timeout(ms) });
-  if (!res.ok) throw new Error(`X returned ${res.status}`);
+  const res = await fetch(url, {
+    headers: {
+      "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 14_0) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Safari/605.1.15",
+      ...(referer ? { Referer: referer } : {}),
+    },
+    signal: AbortSignal.timeout(ms),
+  });
+  if (!res.ok) throw new Error(`source returned ${res.status}`);
+  const contentType = (res.headers.get("content-type") || "").split(";")[0].trim().toLowerCase();
+  if (contentType && !contentType.startsWith("video/") && contentType !== "application/octet-stream") {
+    throw new Error(`not a video file (${contentType})`);
+  }
+  const ext = VIDEO_EXT[contentType] || (extname(new URL(url).pathname).toLowerCase().match(/^\.(mp4|webm|mov|m4v)$/)?.[0]) || ".mp4";
   const length = Number(res.headers.get("content-length") || 0);
   if (length > MAX_VIDEO) throw new Error(`too large (${Math.round(length / 1048576)} MB)`);
   const buffer = Buffer.from(await res.arrayBuffer());
   if (!buffer.byteLength) throw new Error("empty response");
   if (buffer.byteLength > MAX_VIDEO) throw new Error(`too large (${Math.round(buffer.byteLength / 1048576)} MB)`);
   await mkdir(dir, { recursive: true });
-  const file = await uniquePath(dir, baseName, ".mp4");
+  const file = await uniquePath(dir, baseName, ext);
   await writeFile(file, buffer);
   return { file, bytes: buffer.byteLength };
 }
@@ -249,6 +262,10 @@ function normalize(payload) {
     if (!images.includes(u)) images.push(u);
   }
   if (images.length > 20) throw new BadRequest("'images': at most 20 per capture");
+
+  // A right-clicked video's own file (any site but X, whose clips the receiver finds itself).
+  const video = asText(payload.video);
+  if (video && !isHttp(video)) throw new BadRequest("'video' must be an http(s) URL when present");
 
   // A page capture: what was on screen, sent inline because there is no URL to fetch it from.
   let screenshot = null;
@@ -282,6 +299,7 @@ function normalize(payload) {
     page,
     image: images[0] || "",
     images,
+    video,
     screenshot,
     imageAlt: asText(payload.imageAlt),
     title,
@@ -330,6 +348,7 @@ function renderNote(c, savedRels, videoRels = []) {
   // Local clips, embedded so Obsidian plays them. The `video` frontmatter key stays the
   // sync's: it points at the R2 copy once the item is published.
   const videoLinks = videoRels.map((rel, i) => `![${videoRels.length > 1 ? `Video ${i + 1}` : "Video"}](${encodeURI(rel).replace(/[()]/g, (ch) => (ch === "(" ? "%28" : "%29"))})`);
+  if (c.video && !videoRels.length) videoLinks.push(`![Video](${c.video})`);
   const clipped = [c.text, imageLinks.join("\n\n"), videoLinks.join("\n\n"), `_Captured${where} with the allai extension${via} on ${today()}._`]
     .filter(Boolean)
     .join("\n\n");
@@ -376,7 +395,15 @@ async function handleCapture(payload) {
 
   // An X post's videos: <slug>.mp4, <slug>-2.mp4, … beside the pictures.
   const videoRels = [];
-  if (c.siteKind === "x") {
+  if (c.video && c.siteKind !== "x") {
+    try {
+      const saved = await downloadVideo(c.video, dir, base, Date.now() + VIDEO_BUDGET_MS, c.page);
+      videoRels.push(`${c.id}/${saved.file.slice(dir.length + 1)}`);
+      bytes += saved.bytes;
+    } catch (err) {
+      warnings.push(`video not saved: ${err.message}; the note links the remote file instead`);
+    }
+  } else if (c.siteKind === "x") {
     const deadline = Date.now() + VIDEO_BUDGET_MS;
     let urls = [];
     try {

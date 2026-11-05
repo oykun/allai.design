@@ -46,6 +46,7 @@
   // -------------------------------------------------------------------------
 
   function collect(message) {
+    if (message.menu === "video") return collectVideo(message);
     const img = message.srcUrl ? findImage(message.srcUrl) : null;
     const payload = {
       source: stripHash(location.href),
@@ -74,6 +75,65 @@
     // A page with no picture of its own keeps the screenshot the background took.
     if (!payload.image && message.screenshot) payload.screenshot = message.screenshot;
     return payload;
+  }
+
+  /**
+   * A right-clicked <video> with a real file (a Framer page, a portfolio, a product
+   * site): the clip itself goes in `video`, its poster frame in `image` so the note
+   * and the card have a picture. No poster: the current frame, else the screenshot
+   * the background took.
+   */
+  function collectVideo(message) {
+    const video = findVideo(message.srcUrl);
+    const payload = {
+      source: stripHash(location.href),
+      page: stripHash(location.href),
+      title: document.title || "",
+      image: "",
+      imageAlt: "Video poster",
+      video: message.srcUrl,
+      author: "",
+      authorName: "",
+      text: "",
+      published: "",
+      siteKind: "web",
+    };
+    Object.assign(payload, fromPage());
+    const poster = video?.poster || "";
+    if (/^https?:\/\//i.test(poster)) payload.image = poster;
+    else {
+      const frame = video ? currentFrame(video) : "";
+      if (frame) payload.screenshot = frame;
+      else if (message.screenshot) payload.screenshot = message.screenshot;
+    }
+    return payload;
+  }
+
+  /** The <video> the user right-clicked: by its file URL, else the element under the click. */
+  function findVideo(srcUrl) {
+    for (const v of document.querySelectorAll("video")) {
+      const urls = [v.currentSrc, v.src, ...[...v.querySelectorAll("source")].map((s) => s.src)];
+      if (urls.includes(srcUrl)) return v;
+    }
+    if (lastRightClick && Date.now() - lastRightClick.at < 15000) {
+      const t = lastRightClick.target;
+      return t?.closest?.("video") || t?.querySelector?.("video") || null;
+    }
+    return null;
+  }
+
+  /** The frame on screen as a JPEG data URL, or "" (not loaded yet, or another origin's file without CORS). */
+  function currentFrame(video) {
+    try {
+      if (!video.videoWidth) return "";
+      const canvas = document.createElement("canvas");
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      canvas.getContext("2d").drawImage(video, 0, 0);
+      return canvas.toDataURL("image/jpeg", 0.9);
+    } catch {
+      return "";
+    }
   }
 
   /** The <img> the user right-clicked, matched by its resolved URL. */

@@ -1,8 +1,8 @@
 /**
  * allai — background script (a service worker in Chrome, the same in Safari).
  *
- * Owns the one context-menu item ("Add to AllAI": an image when you clicked one,
- * the page otherwise), asks the page for the context around the clicked image, and is the only part of the extension that talks to the
+ * Owns the one context-menu item ("Add to AllAI": an image or a video when you
+ * clicked one, the page otherwise), asks the page for the context around the clicked image, and is the only part of the extension that talks to the
  * receiver (`npm run inbox` in the allai.design repo). Pages never call the
  * receiver themselves: X's content-security policy would block it, and keeping
  * one caller makes the later switch to the platform API a one-line change.
@@ -30,8 +30,8 @@ const MENU = "allai";
 
 // One item, so browsers show it at the top level instead of nesting two under
 // the extension's name. What it captures depends on where the click landed:
-// an image when the click was on one, the page (or the right-clicked post on
-// X, video included) otherwise.
+// an image or a video when the click was on one, the page (or the right-clicked
+// post on X, video included) otherwise.
 async function installMenus() {
   try {
     await api.contextMenus.removeAll();
@@ -39,7 +39,7 @@ async function installMenus() {
     console.warn("allai: contextMenus.removeAll failed", err);
   }
   try {
-    api.contextMenus.create({ id: MENU, title: "Add to AllAI", contexts: ["image", "page", "frame", "selection", "link"] }, () => {
+    api.contextMenus.create({ id: MENU, title: "Add to AllAI", contexts: ["image", "video", "page", "frame", "selection", "link"] }, () => {
       const err = api.runtime.lastError;
       if (err) console.error("allai: could not create the menu item", err.message || err);
     });
@@ -48,10 +48,17 @@ async function installMenus() {
   }
 }
 
-/** Did the right-click land on a picture? Chrome and Safari both report mediaType. */
-function clickedImage(info) {
-  if (info.mediaType) return info.mediaType === "image";
-  return Boolean(info.srcUrl) && /^https?:\/\//i.test(info.srcUrl);
+/**
+ * What the right-click landed on: "image", "video" or "page". Chrome and Safari both
+ * report mediaType. A video only counts when its file has a real address: a streamed
+ * player (blob:, as on X) has no file to fetch, so it is captured as the page, which on
+ * X finds the post and lets the receiver fetch the clip from X.
+ */
+function clickedKind(info) {
+  const http = /^https?:\/\//i.test(info.srcUrl || "");
+  if (info.mediaType === "video") return http ? "video" : "page";
+  if (info.mediaType) return info.mediaType === "image" ? "image" : "page";
+  return http ? "image" : "page";
 }
 
 // Chrome keeps menus between service-worker restarts; Safari does not, so
@@ -162,17 +169,18 @@ async function capture(info, tab) {
     const [active] = await api.tabs.query({ active: true, currentWindow: true });
     tab = active;
   }
-  const menu = clickedImage(info) ? "image" : "page";
+  const menu = clickedKind(info);
   const request = {
     type: "allai:collect",
     menu,
-    srcUrl: menu === "image" ? info.srcUrl || "" : "",
+    srcUrl: menu === "page" ? "" : info.srcUrl || "",
     pageUrl: info.pageUrl || tab?.url || "",
     title: tab?.title || "",
     // A page capture keeps what was on screen, taken before the form covers it: the
     // sync's own recording can't get past a sign-in, and a page is often saved for
     // one part of it. Unused when the page itself yields a picture (an X post).
-    screenshot: menu === "page" ? await screenshot(tab) : "",
+    // A video keeps one too, for the rare player with no poster frame.
+    screenshot: menu === "image" ? "" : await screenshot(tab),
     config: await config(),
   };
   const frameId = info.frameId || 0;
@@ -209,6 +217,7 @@ async function capture(info, tab) {
     page: request.pageUrl,
     title: request.title,
     image: request.menu === "image" ? request.srcUrl : "",
+    video: request.menu === "video" ? request.srcUrl : "",
     screenshot: request.screenshot,
     author: "",
     authorName: "",

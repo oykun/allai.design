@@ -80,6 +80,19 @@ async function hostMedia(item) {
     return updates;
   }
 
+  // A video right-clicked with the extension: publish that clip and its poster frame,
+  // not a recording of the page around it.
+  if (item.clippedVideo) {
+    const ext = extname(item.clippedVideo.split("?")[0]).toLowerCase() || ".mp4";
+    const updates = { video: (await uploadToR2(item.clippedVideo, `${key}/${slug}${ext}`)).url };
+    const poster = item.localImages[0] || item.imageUrl;
+    if (poster) {
+      const pext = extname(poster.split("?")[0]).toLowerCase() || ".jpg";
+      updates.image = (await uploadToR2(poster, `${key}/${slug}${pext}`)).url;
+    }
+    return updates;
+  }
+
   // A page saved with the extension: publish what was on screen. A recording would
   // show the page signed out, and the screenshot is the part Oykun picked.
   if (item.screenshot) {

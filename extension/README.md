@@ -119,12 +119,13 @@ the reload icon on the card after editing a file.
 
 ## Daily use
 
-There is one menu item, **Add to AllAI**, everywhere. It captures the image when you right-clicked one, otherwise the page (on X: the post you right-clicked).
+There is one menu item, **Add to AllAI**, everywhere. It captures the image or video when you right-clicked one, otherwise the page (on X: the post you right-clicked).
 
 - **On X:** right-click the image → **Add to AllAI**. The form knows the post: handle, name, text, permalink, the timestamp, and the original-resolution file (`name=orig`, not the feed's `small`).
 - **A post with several pictures:** right-click any one of them → **Add to AllAI**. The whole gallery is one item: every picture is downloaded into the item's folder and linked in the note, the one you clicked is the cover (`image`), and the form says "· 4 images".
 - **A video on X:** the player draws X's own menu, so right-click the post's *text* instead → **Add to AllAI**. The form knows which post you clicked, in the feed too; the note gets the video's poster frame as its image, and `npm run sync` fetches the video itself when you publish.
 - **Videos on X:** X's player takes over a right-click on the video, so right-click the post's text (or empty space in the post) and choose **Add to AllAI**. The form shows the video's first frame; the receiver downloads every video in the post as `.mp4` beside the note, embedded so Obsidian plays it. A clip that's too large or slow (over 200 MB, or past about 20 seconds of downloading) is skipped with a note in the save message; the sync still hosts it on the site when published.
+- **A video anywhere else** (a Framer page, a portfolio, a product site): right-click the video → **Add to AllAI** in the browser's own video menu. The form says "· video" and shows the poster frame; the receiver saves the clip (`.mp4`, `.webm` or `.mov`, up to 200 MB) beside the note and embeds it so Obsidian plays it, and `npm run sync` publishes that clip with its poster instead of recording the page. A streamed player with no file behind it (a `blob:` source) is captured as the page.
 - **Anywhere else:** right-click an image → **Add to AllAI** sends the image with the page's title, description and author. Right-click the page (or click the toolbar icon) sends the page with no image; `npm run sync` records the page itself, as it does for clipper notes.
 - **What I like** is the one required field. One to three lines on the specific thing worth keeping: not "nice", but "the pricing table uses one accent colour and it's on the number, not the button". That line becomes the card's note on the site, the file name of the image in every moodboard export, and the brief the AI annotator reads.
 - **Category** is the fixed list (seven today).

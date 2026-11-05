@@ -219,6 +219,18 @@ function localImagesIn(body, file) {
   return out;
 }
 
+/** A clip the extension saved from a right-clicked video: the local copy beside the note, else the remote file it linked. */
+function clippedVideoIn(body, file) {
+  for (const m of body.matchAll(/!\[[^\]]*\]\(([^)\s]+)\)/g)) {
+    if (!/\.(mp4|webm|mov|m4v)(\?|$)/i.test(m[1])) continue;
+    if (/^https?:/i.test(m[1])) return m[1];
+    try {
+      return join(dirname(file), decodeURI(m[1]));
+    } catch {}
+  }
+  return "";
+}
+
 function firstImageIn(body) {
   const m = body.match(/!\[[^\]]*\]\((https?:\/\/[^)\s]+)\)/);
   return m ? m[1] : "";
@@ -265,6 +277,8 @@ export async function readItem(file) {
     screenshot: asBool(fm.screenshot) ? localImagesIn(body, file)[0] || "" : "",
     // An X post with several pictures: the receiver's local copies, and their R2 copies once hosted.
     localImages: localImagesIn(body, file),
+    // A right-clicked video on any site but X (X clips come from X itself).
+    clippedVideo: clippedVideoIn(body, file),
     gallery: asList(fm.gallery),
     noteMarkdown,
     curationNote: notePlainText(noteMarkdown),
