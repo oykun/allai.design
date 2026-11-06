@@ -230,10 +230,11 @@ body {
 
 .filters-toggle {
   position: fixed;
-  right: 24px;
+  left: 50%;
   bottom: 24px;
   z-index: 150;
   width: 72px;
+  margin-left: -36px; /* centred without transform, which the hover scale uses */
   height: 72px;
   padding: 0;
   border: none;
@@ -321,7 +322,7 @@ body {
 
 @media (max-width: 720px) {
   .grid { gap: 1.5rem; padding: 1.5rem 1rem; }
-  .filters-toggle { right: 16px; bottom: 16px; width: 64px; height: 64px; }
+  .filters-toggle { bottom: 16px; width: 64px; height: 64px; margin-left: -32px; }
 }
 
 </style>

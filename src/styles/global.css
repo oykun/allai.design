@@ -139,8 +139,11 @@ img {
 /* The feed's panel is a drawer with no panel at all: the Filters button reveals
    the logo, nav and filters as frosted chips floating over the feed, popping in
    from the bottom up. The panel itself lets clicks through; only chips catch them. */
-.side-panel--drawer {
-  width: 300px;
+.side-panel.side-panel--drawer {
+  /* Centred by offset, not transform: a transform would trap the fixed blur below in this box. */
+  left: max(0px, calc(50% - 320px));
+  right: auto;
+  width: min(640px, 100vw);
   pointer-events: none;
   visibility: hidden;
   transition: visibility 0s 0.3s;
@@ -151,31 +154,33 @@ img {
   transition: none;
 }
 
-/* The chips gather in the bottom-right corner, just above the button. */
+/* The chips gather at the bottom centre, just above the button. */
 .side-panel--drawer .side-panel-inner {
   -webkit-mask-image: none;
   mask-image: none;
   justify-content: flex-end;
-  padding: 24px 24px 112px; /* clears the button */
+  align-items: center;
+  text-align: center;
+  padding: 24px 16px 112px; /* clears the button */
   gap: 14px;
 }
 
 .side-panel--drawer .side-count { margin-top: 0; padding-bottom: 0; }
 
-/* Behind them, the feed simply blurs: no colour, fading out to the left. */
+/* Behind them, the feed simply blurs: no colour, fading out upwards. */
 .side-panel--drawer::before {
   content: '';
   position: fixed;
-  top: 0;
+  left: 0;
   right: 0;
   bottom: 0;
-  width: 420px;
+  height: 70vh;
   z-index: -1;
   pointer-events: none;
   -webkit-backdrop-filter: blur(18px);
   backdrop-filter: blur(18px);
-  -webkit-mask-image: linear-gradient(to left, #000 55%, transparent);
-  mask-image: linear-gradient(to left, #000 55%, transparent);
+  -webkit-mask-image: linear-gradient(to top, #000 55%, transparent);
+  mask-image: linear-gradient(to top, #000 55%, transparent);
   opacity: 0;
   transition: opacity 0.3s ease;
 }
@@ -187,12 +192,12 @@ img {
 .side-panel.side-panel--drawer .filter-group-header {
   flex-direction: row;
   flex-wrap: wrap;
-  justify-content: flex-end;
+  justify-content: center;
   align-items: center;
   gap: 6px;
 }
 
-.side-panel--drawer .side-section { align-items: flex-end; gap: 6px; }
+.side-panel--drawer .side-section { align-items: center; gap: 6px; }
 .side-panel--drawer .filter-dot { display: none; }
 .side-panel--drawer [hidden] { display: none !important; }
 

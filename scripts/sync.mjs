@@ -165,10 +165,20 @@ async function categorise(item, styleVocab) {
     "",
     'Answer with JSON only, no prose: {"category": "...", "style": ["..."]}',
   ].filter((l) => l !== "").join("\n");
-  const { stdout } = await run(CLAUDE_BIN, ["-p", prompt, "--model", "haiku", "--allowedTools", "Read", "--output-format", "text"], {
+  const call = run(CLAUDE_BIN, ["-p", prompt, "--model", "haiku", "--allowedTools", "Read", "--output-format", "text"], {
     timeout: 180000,
     maxBuffer: 1024 * 1024,
   });
+  call.child.stdin.end(); // nothing to pipe; an open stdin makes the CLI wait 3s and warn
+  let stdout;
+  try {
+    ({ stdout } = await call);
+  } catch (err) {
+    // execFile's message repeats the whole prompt; the CLI's own last line says why it failed
+    // (e.g. "OAuth session expired" means run `claude` once in a terminal to sign in again).
+    const why = `${err.stderr || ""}\n${err.stdout || ""}`.trim().split("\n").filter(Boolean).pop();
+    throw new Error(why || (err.killed ? "timed out" : `claude exited ${err.code}`));
+  }
   const json = stdout.match(/\{[\s\S]*\}/)?.[0];
   if (!json) throw new Error("no answer");
   const answer = JSON.parse(json);
