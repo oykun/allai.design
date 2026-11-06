@@ -94,7 +94,7 @@ const styles = getUniqueMulti(items, 'style');
     )}
   </main>
 
-  <div class="modal" id="modal" hidden role="dialog" aria-modal="true" aria-labelledby="modal-title" data-layout="caption">
+  <div class="modal" id="modal" hidden role="dialog" aria-modal="true" aria-labelledby="modal-title">
     <div class="modal-backdrop" data-modal-close></div>
 
     <!-- The visual, centred and sized to the stage by the script. -->
@@ -122,14 +122,6 @@ const styles = getUniqueMulti(items, 'style');
         <button type="button" class="modal-close" data-modal-close>Close</button>
       </div>
     </aside>
-
-    <!-- Temporary, while choosing where the details go. -->
-    <div class="modal-layouts" role="group" aria-label="Details layout">
-      <span>Layout</span>
-      <button type="button" data-layout="caption">1 Caption</button>
-      <button type="button" data-layout="bar">2 Top bar</button>
-      <button type="button" data-layout="overlay">3 On demand</button>
-    </div>
   </div>
 
 </body>
@@ -840,40 +832,24 @@ body {
     el.addEventListener('click', closeModal);
   });
 
-  // The note, in the on-demand layout.
+  // The note, opened from the pill or with the i key.
   function toggleNote(open = !modal.classList.contains('note-open')) {
     modal.classList.toggle('note-open', open);
     modalInfo.setAttribute('aria-expanded', String(open));
   }
   modalInfo.addEventListener('click', () => toggleNote());
 
-  // Where the details sit. Temporary switcher while choosing; the pick is
-  // remembered on this browser.
-  const LAYOUTS = ['caption', 'bar', 'overlay'];
-  function setLayout(name: string) {
-    modal.dataset.layout = name;
-    modal.querySelectorAll<HTMLElement>('.modal-layouts button').forEach(b =>
-      b.setAttribute('aria-pressed', String(b.dataset.layout === name)));
-    try { localStorage.setItem('allai-modal-layout', name); } catch {}
-    toggleNote(false);
-    fitMedia();
-  }
-  let savedLayout: string | null = null;
-  try { savedLayout = localStorage.getItem('allai-modal-layout'); } catch {}
-  setLayout(savedLayout && LAYOUTS.includes(savedLayout) ? savedLayout : 'caption');
-  modal.querySelectorAll<HTMLElement>('.modal-layouts button').forEach(b =>
-    b.addEventListener('click', () => setLayout(b.dataset.layout!)));
-
-  // On demand: everything but the visual fades once the mouse rests.
+  // Everything but the visual fades soon after the mouse rests.
+  const IDLE_MS = 1200;
   let idleTimer = 0;
   function wake() {
     modal.classList.remove('is-idle');
     clearTimeout(idleTimer);
     idleTimer = window.setTimeout(() => {
-      if (!modal.hidden && !narrow.matches && modal.dataset.layout === 'overlay' && !modal.classList.contains('note-open')) {
+      if (!modal.hidden && !narrow.matches && !modal.classList.contains('note-open')) {
         modal.classList.add('is-idle');
       }
-    }, 2500);
+    }, IDLE_MS);
   }
   modal.addEventListener('mousemove', wake);
 
@@ -885,7 +861,6 @@ body {
     else if (e.key === 'ArrowRight') { e.preventDefault(); step(1); }
     else if (e.key === 'ArrowLeft') { e.preventDefault(); step(-1); }
     else if (e.key === 'i' || e.key === 'I') toggleNote();
-    else if (e.key >= '1' && e.key <= '3') setLayout(LAYOUTS[Number(e.key) - 1]);
     wake();
   });
 

@@ -310,9 +310,8 @@ img {
   padding-bottom: 4px;
 }
 
-/* Detail modal — the visual centred and as large as the screen allows, with
-   arrows either side. The details are placed by data-layout: a caption under
-   the visual, a slim bar along the top, or a pill that shows only on demand. */
+/* Detail modal — the visual alone, centred and as large as the screen
+   allows, with arrows either side and the details on demand. */
 .modal[hidden] { display: none; }
 
 .modal {
@@ -320,12 +319,10 @@ img {
   inset: 0;
   z-index: 200;
   --edge: 76px;    /* room either side for the arrows */
-  --top: 24px;     /* room above and below the visual, per layout */
-  --bottom: 148px;
+  --top: 24px;     /* room above and below the visual */
+  --bottom: 24px;
 }
 
-.modal[data-layout="bar"] { --top: 64px; --bottom: 24px; }
-.modal[data-layout="overlay"] { --top: 24px; --bottom: 24px; }
 
 .modal-backdrop {
   position: absolute;
@@ -418,8 +415,7 @@ img {
    Backwards, not both: once in, opacity is free for the idle fade. */
 .modal-backdrop,
 .modal-details,
-.modal-nav,
-.modal-layouts {
+.modal-nav {
   animation: modal-fade 260ms ease backwards;
 }
 
@@ -510,7 +506,6 @@ img {
 
 .modal-source:hover, .modal-info:hover { background: #fff; }
 .modal-source[hidden], .modal-info[hidden] { display: none; }
-.modal-info { display: none; }
 
 .modal-close {
   background: var(--text-primary);
@@ -518,68 +513,10 @@ img {
   font-weight: 500;
 }
 
-/* 1 · Caption: a short centred caption under the visual, like a wall label. */
-.modal[data-layout="caption"] .modal-details {
-  left: var(--edge);
-  right: var(--edge);
-  bottom: 0;
-  height: var(--bottom);
-  padding: 14px 0 22px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  text-align: center;
-}
-
-.modal[data-layout="caption"] :is(.modal-head, .modal-note) { max-width: 680px; }
-
-.modal[data-layout="caption"] .modal-note {
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
-  overflow: hidden;
-}
-
-.modal[data-layout="caption"] .modal-actions { margin-top: 6px; }
-
-/* 2 · Top bar: one slim line across the top; the note is cut to fit and shows
-   whole on hover. */
-.modal[data-layout="bar"] .modal-details {
-  top: 0;
-  left: 0;
-  right: 0;
-  height: var(--top);
-  padding: 0 20px;
-  display: flex;
-  align-items: center;
-  gap: 24px;
-}
-
-.modal[data-layout="bar"] .modal-head {
-  flex: 0 1 auto;
-  max-width: 34%;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.modal[data-layout="bar"] .modal-note {
-  flex: 1 1 0;
-  min-width: 0;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  color: var(--text-primary);
-}
-
-.modal[data-layout="bar"] .modal-note:empty { display: block; }
-
-/* 3 · On demand: the visual alone; one small pill at the bottom with the
-   title, and the note opens above it (Note button or the i key). Everything
-   but the visual fades out when the mouse rests. */
-.modal[data-layout="overlay"] .modal-details {
+/* The details: one small pill at the bottom with the title, and the note
+   opens above it (Note button or the i key). Everything but the visual fades
+   out when the mouse rests. */
+.modal .modal-details {
   left: 50%;
   bottom: 20px;
   transform: translateX(-50%);
@@ -591,15 +528,15 @@ img {
   gap: 8px;
 }
 
-.modal[data-layout="overlay"] .modal-head,
-.modal[data-layout="overlay"] .modal-note {
+.modal .modal-head,
+.modal .modal-note {
   background: rgba(255, 255, 255, 0.78);
   -webkit-backdrop-filter: blur(14px) saturate(1.4);
   backdrop-filter: blur(14px) saturate(1.4);
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
 }
 
-.modal[data-layout="overlay"] .modal-head {
+.modal .modal-head {
   order: 1;
   max-width: 100%;
   padding: 6px 14px;
@@ -609,11 +546,10 @@ img {
   text-overflow: ellipsis;
 }
 
-.modal[data-layout="overlay"] .modal-actions { order: 2; }
-.modal[data-layout="overlay"] .modal-tags { display: none; }
-.modal[data-layout="overlay"] .modal-info { display: inline-block; }
+.modal .modal-actions { order: 2; }
+.modal .modal-tags { display: none; }
 
-.modal[data-layout="overlay"] .modal-note {
+.modal .modal-note {
   order: 0;
   display: none;
   max-width: 520px;
@@ -622,54 +558,23 @@ img {
   text-align: left;
 }
 
-.modal[data-layout="overlay"].note-open .modal-note:not(:empty) { display: block; }
-.modal[data-layout="overlay"].note-open .modal-info { background: var(--text-primary); color: #fff; }
+.modal.note-open .modal-note:not(:empty) { display: block; }
+.modal.note-open .modal-info { background: var(--text-primary); color: #fff; }
 
 /* Only with a mouse to bring it back: a phone has nothing to wake it. */
 @media (hover: hover) and (min-width: 721px) {
-  .modal[data-layout="overlay"].is-idle :is(.modal-details, .modal-nav, .modal-layouts) { opacity: 0; }
-  .modal[data-layout="overlay"].is-idle { cursor: none; }
+  .modal.is-idle :is(.modal-details, .modal-nav) { opacity: 0; }
+  .modal.is-idle { cursor: none; }
 }
-
-/* Temporary: flips between the three layouts while choosing (keys 1, 2, 3). */
-.modal-layouts {
-  position: absolute;
-  left: 16px;
-  bottom: 16px;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  color: var(--text-muted);
-  font-size: 12px;
-  transition: opacity 0.3s;
-}
-
-.modal[data-layout="caption"] .modal-layouts { bottom: auto; top: 16px; }
-
-.modal-layouts span { margin-right: 4px; }
-
-.modal-layouts button {
-  padding: 3px 10px;
-  border: none;
-  border-radius: 999px;
-  font: inherit;
-  color: var(--text-primary);
-  background: rgba(255, 255, 255, 0.78);
-  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.06);
-  cursor: pointer;
-}
-
-.modal-layouts button[aria-pressed="true"] { background: var(--text-primary); color: #fff; }
 
 @media (prefers-reduced-motion: reduce) {
-  .modal-backdrop, .modal-details, .modal-nav, .modal-layouts { animation: none; }
+  .modal-backdrop, .modal-details, .modal-nav { animation: none; }
 }
 
 /* A phone: the visual on top, the caption beneath it whatever the layout, the
    arrows in the top corners; swipe also moves between posts. */
 @media (max-width: 720px) {
-  .modal { overflow-y: auto; --edge: 16px; }
-  .modal[data-layout] { --top: 64px; --bottom: 16px; }
+  .modal { overflow-y: auto; --edge: 16px; --top: 64px; --bottom: 16px; }
 
   .modal-stage {
     position: relative;
@@ -680,7 +585,7 @@ img {
     padding: 64px 16px 16px;
   }
 
-  .modal[data-layout] .modal-details {
+  .modal .modal-details {
     position: relative;
     inset: auto;
     transform: none;
@@ -696,7 +601,7 @@ img {
     opacity: 1;
   }
 
-  .modal[data-layout] :is(.modal-head, .modal-note) {
+  .modal :is(.modal-head, .modal-note) {
     order: 0;
     display: block;
     max-width: none;
@@ -709,12 +614,10 @@ img {
     -webkit-line-clamp: unset;
   }
 
-  .modal[data-layout] .modal-note:empty { display: none; }
-  .modal[data-layout] .modal-actions { order: 1; flex-wrap: wrap; }
-  .modal[data-layout] .modal-tags { display: inline; }
-  .modal[data-layout] .modal-info { display: none; }
-  .modal-nav { position: fixed; top: 12px; margin-top: 0; opacity: 1; }
-  .modal-layouts { display: none; }
+  .modal .modal-note:empty { display: none; }
+  .modal .modal-actions { order: 1; flex-wrap: wrap; }
+  .modal .modal-tags { display: inline; }
+  .modal   .modal-nav { position: fixed; top: 12px; margin-top: 0; opacity: 1; }
 
   .modal-media--tall { height: 80vh; }
   .modal-media--stack img {
