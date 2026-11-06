@@ -94,28 +94,42 @@ const styles = getUniqueMulti(items, 'style');
     )}
   </main>
 
-  <div class="modal" id="modal" hidden role="dialog" aria-modal="true" aria-labelledby="modal-title">
+  <div class="modal" id="modal" hidden role="dialog" aria-modal="true" aria-labelledby="modal-title" data-layout="caption">
     <div class="modal-backdrop" data-modal-close></div>
 
-    <!-- Media fills the grid area; details sit in the filter column. -->
+    <!-- The visual, centred and sized to the stage by the script. -->
     <div class="modal-stage">
       <div class="modal-media"></div>
     </div>
 
+    <button type="button" class="modal-nav modal-nav--prev" aria-label="Previous post">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6" /></svg>
+    </button>
+    <button type="button" class="modal-nav modal-nav--next" aria-label="Next post">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18l6-6-6-6" /></svg>
+    </button>
+
     <aside class="modal-details">
-      <div class="modal-block">
+      <div class="modal-head">
         <h2 class="modal-title" id="modal-title"></h2>
-        <div class="modal-sub"></div>
+        <span class="modal-sub"></span>
       </div>
-      <div class="modal-block modal-about">
-        <p class="modal-note"></p>
-        <div class="modal-tags"></div>
-      </div>
+      <p class="modal-note"></p>
       <div class="modal-actions">
+        <span class="modal-tags"></span>
+        <button type="button" class="modal-info" aria-expanded="false">Note</button>
         <a class="modal-source" target="_blank" rel="noopener noreferrer">View source ↗</a>
         <button type="button" class="modal-close" data-modal-close>Close</button>
       </div>
     </aside>
+
+    <!-- Temporary, while choosing where the details go. -->
+    <div class="modal-layouts" role="group" aria-label="Details layout">
+      <span>Layout</span>
+      <button type="button" data-layout="caption">1 Caption</button>
+      <button type="button" data-layout="bar">2 Top bar</button>
+      <button type="button" data-layout="overlay">3 On demand</button>
+    </div>
   </div>
 
 </body>
@@ -558,18 +572,24 @@ body {
   // ---- Detail modal -------------------------------------------------------
 
   const modal = document.getElementById('modal')!;
+  const modalStage = modal.querySelector('.modal-stage') as HTMLElement;
   const modalTitle = modal.querySelector('.modal-title') as HTMLElement;
   const modalSub = modal.querySelector('.modal-sub') as HTMLElement;
   const modalTags = modal.querySelector('.modal-tags') as HTMLElement;
   const modalNote = modal.querySelector('.modal-note') as HTMLElement;
   const modalMedia = modal.querySelector('.modal-media') as HTMLElement;
   const modalSource = modal.querySelector('.modal-source') as HTMLAnchorElement;
+  const modalInfo = modal.querySelector('.modal-info') as HTMLButtonElement;
+  const navPrev = modal.querySelector('.modal-nav--prev') as HTMLButtonElement;
+  const navNext = modal.querySelector('.modal-nav--next') as HTMLButtonElement;
 
-  let lastTrigger: HTMLElement | null = null;
-  let openedFrom: DOMRect | null = null;
-  let openedFromEl: HTMLElement | null = null;
+  let current: HTMLElement | null = null;      // the card on show
+  let lastTrigger: HTMLElement | null = null;  // its button, for focus and the close morph
+  let openedFromEl: HTMLElement | null = null; // its thumbnail, blanked while the modal shows it
 
   const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const narrow = matchMedia('(max-width: 720px)');
+  const MAX_UPSCALE = 2; // a small picture grows to fill the screen, but no more than twice its size
 
   /**
    * FLIP: the modal's media starts sitting exactly on top of the card that was
@@ -607,29 +627,64 @@ body {
     }
   }
 
-  function openModal(card: HTMLElement) {
+  const isStack = () => modalMedia.classList.contains('modal-media--stack');
+  const isTall = () => modalMedia.classList.contains('modal-media--tall');
+
+  // A single picture or video, sized to the largest box the stage allows at its
+  // own shape. CSS alone can shrink it to fit but never grow it.
+  function fitMedia() {
+    if (isStack() || isTall()) return;
+    const el = modalMedia.firstElementChild as HTMLImageElement | HTMLVideoElement | null;
+    if (!el) return;
+    const w = (el as HTMLImageElement).naturalWidth || (el as HTMLVideoElement).videoWidth;
+    const h = (el as HTMLImageElement).naturalHeight || (el as HTMLVideoElement).videoHeight;
+    if (!w || !h) return;
+    const box = narrow.matches
+      ? { width: innerWidth - 32, height: innerHeight * 0.7 }
+      : modalStage.getBoundingClientRect();
+    const scale = Math.min(box.width / w, box.height / h, MAX_UPSCALE);
+    el.style.width = `${Math.floor(w * scale)}px`;
+    el.style.height = `${Math.floor(h * scale)}px`;
+    el.style.maxHeight = 'none';
+  }
+
+  // The element that flies between card and modal: the media, or for a tall
+  // screenshot or a gallery its scrolling box.
+  function morphTarget() {
+    return isTall() || isStack() ? modalMedia : modalMedia.firstElementChild as HTMLElement;
+  }
+
+  const mediaOf = (card: HTMLElement) =>
+    card.querySelector('.card-image img, .card-image video') as HTMLElement | null;
+
+  // The posts the arrows move through: the feed as filtered, in feed order.
+  const visibleCards = () =>
+    ([...document.querySelectorAll('.card')] as HTMLElement[]).filter(c => c.style.display !== 'none');
+
+  // Puts a card's post in the modal: text, media, and which arrows apply.
+  function fill(card: HTMLElement) {
     const d = card.dataset;
-    const cardMedia = card.querySelector('.card-image img, .card-image video') as HTMLElement | null;
-    const from = cardMedia?.getBoundingClientRect();
+    current = card;
+    lastTrigger = card.querySelector('.card-image');
 
     modalTitle.textContent = d.title || 'Untitled';
-
-    // Source and date sit under the title; either may be missing.
     const date = d.date
       ? new Date(d.date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
       : '';
     modalSub.textContent = [d.source, date].filter(Boolean).join(' · ');
-
-    // Category and styles as one quiet line under the note.
     modalTags.textContent = [d.category, ...(d.style || '').split(',')].filter(Boolean).join(' · ');
-
     modalNote.textContent = d.note || '';
+    modalNote.title = d.note || '';
+    modalInfo.hidden = !d.note;
+    modalSource.hidden = !d.sourceUrl;
+    if (d.sourceUrl) modalSource.href = d.sourceUrl;
 
     // Rebuild the media rather than moving the card's node, so the grid
     // underneath keeps rendering while the modal is open.
+    for (const a of modalMedia.getAnimations({ subtree: true })) { a.onfinish = a.oncancel = null; a.cancel(); }
     modalMedia.innerHTML = '';
-    // A whole-page screenshot (over twice as tall as wide) scrolls in its own box,
-    // and that box is what grows out of the card.
+    const cardMedia = mediaOf(card);
+    // A whole-page screenshot (over twice as tall as wide) scrolls in its own box.
     const tall = cardMedia instanceof HTMLImageElement && cardMedia.naturalHeight > cardMedia.naturalWidth * 2;
     const gallery: string[] = d.images ? JSON.parse(d.images) : [];
     modalMedia.classList.toggle('modal-media--tall', !d.video && !gallery.length && tall);
@@ -658,31 +713,74 @@ body {
       modalMedia.append(img);
     }
 
-    modalSource.hidden = !d.sourceUrl;
-    if (d.sourceUrl) modalSource.href = d.sourceUrl;
+    const list = visibleCards();
+    const i = list.indexOf(card);
+    navPrev.disabled = i <= 0;
+    navNext.disabled = i >= list.length - 1 && !isStack();
 
-    // The blocks pop in from the bottom up, nearest the corner first.
-    const blocks = [...modal.querySelectorAll('.modal-details > *')] as HTMLElement[];
-    blocks.forEach((b, i) => b.style.setProperty('--n', String(blocks.length - 1 - i)));
-    modal.querySelector('.modal-about')!.toggleAttribute('hidden', !d.note && !modalTags.textContent);
+    // Blank the thumbnail while the modal shows it: with both on screen the
+    // morph reads as a copy flying out, not the thumbnail itself growing.
+    if (openedFromEl) openedFromEl.style.visibility = '';
+    openedFromEl = reduceMotion ? null : cardMedia;
+    if (openedFromEl) openedFromEl.style.visibility = 'hidden';
+  }
 
+  function openModal(card: HTMLElement) {
+    const from = mediaOf(card)?.getBoundingClientRect();
+    fill(card);
     modal.hidden = false;
     document.body.style.overflow = 'hidden';
     (modal.querySelector('.modal-close') as HTMLElement)?.focus();
+    wake();
 
     const target = modalMedia.firstElementChild as HTMLElement | null;
-    if (target && from && cardMedia && !reduceMotion) {
-      openedFrom = from;
-      openedFromEl = cardMedia;
-      // Blank the thumbnail for the duration: with both on screen it reads as a
-      // copy flying out, not as the thumbnail itself growing.
-      cardMedia.style.visibility = 'hidden';
-      whenSized(target, () => morph(morphTarget(), from));
-    }
+    if (!target) return;
+    whenSized(target, () => {
+      if (!target.isConnected) return;
+      fitMedia();
+      if (from && !reduceMotion) morph(morphTarget(), from);
+    });
+  }
+
+  // A gallery steps picture by picture; false once there's none further that way.
+  function stepGallery(dir: 1 | -1) {
+    const x = modalMedia.scrollLeft;
+    const atEnd = x + modalMedia.clientWidth >= modalMedia.scrollWidth - 4;
+    const pics = [...modalMedia.children] as HTMLElement[];
+    const to = dir > 0
+      ? (atEnd ? undefined : pics.find(p => p.offsetLeft > x + 4))
+      : pics.reverse().find(p => p.offsetLeft < x - 4);
+    if (!to) return false;
+    modalMedia.scrollTo({ left: to.offsetLeft, behavior: reduceMotion ? 'auto' : 'smooth' });
+    return true;
+  }
+
+  // Next or previous post, without closing.
+  function step(dir: 1 | -1) {
+    if (!current) return;
+    if (isStack() && stepGallery(dir)) return;
+    const list = visibleCards();
+    const next = list[list.indexOf(current) + dir];
+    if (!next) return;
+    fill(next);
+    // Keep the feed underneath on the same post, so closing shrinks back into it.
+    next.scrollIntoView({ block: 'center' });
+    const target = modalMedia.firstElementChild as HTMLElement | null;
+    if (!target) return;
+    whenSized(target, () => {
+      if (!target.isConnected) return;
+      fitMedia();
+      if (!reduceMotion) morphTarget().animate(
+        [{ opacity: 0, transform: `translateX(${dir * 32}px)` }, { opacity: 1, transform: 'none' }],
+        { duration: 240, easing: 'cubic-bezier(0.2, 0, 0, 1)' }
+      );
+    });
   }
 
   function finishClose() {
     modal.hidden = true;
+    modal.classList.remove('note-open', 'is-idle');
+    modalInfo.setAttribute('aria-expanded', 'false');
     modalMedia.innerHTML = ''; // stops any playing video
     modalMedia.classList.remove('modal-media--tall', 'modal-media--stack');
     // The box outlives the modal, so the close morph's held end state must not.
@@ -690,58 +788,105 @@ body {
     document.body.style.overflow = '';
     if (openedFromEl) openedFromEl.style.visibility = '';
     openedFromEl = null;
-    lastTrigger?.focus();
+    lastTrigger?.focus({ preventScroll: true });
     lastTrigger = null;
-    openedFrom = null;
-  }
-
-  // The element that flies between card and modal: the media, or for a tall
-  // screenshot its scrolling box (the image inside it is the whole page long).
-  function morphTarget() {
-    return modalMedia.classList.contains('modal-media--tall') || modalMedia.classList.contains('modal-media--stack')
-      ? modalMedia
-      : modalMedia.firstElementChild as HTMLElement;
+    current = null;
   }
 
   function closeModal() {
     const target = modalMedia.firstElementChild ? morphTarget() : null;
-
-    // Shrink back into the card it came from — unless a filter has since
-    // hidden that card, in which case there's nothing to return to.
-    const cardVisible = lastTrigger?.offsetParent !== null;
-    if (target && openedFrom && cardVisible && !reduceMotion) {
-      const anim = morph(target, openedFrom, true);
+    // Shrink back into the card on show — unless a filter has since hidden it.
+    const from = openedFromEl && lastTrigger?.offsetParent !== null ? openedFromEl.getBoundingClientRect() : null;
+    if (target && from && !reduceMotion) {
+      const anim = morph(target, from, true);
       if (anim) {
         anim.onfinish = finishClose;
         anim.oncancel = finishClose;
         return;
       }
     }
-
     finishClose();
   }
 
   document.querySelectorAll('.card').forEach(card => {
     const trigger = card.querySelector('.card-image') as HTMLElement | null;
-    trigger?.addEventListener('click', () => {
-      lastTrigger = trigger;
-      openModal(card as HTMLElement);
-    });
+    trigger?.addEventListener('click', () => openModal(card as HTMLElement));
   });
+
+  navPrev.addEventListener('click', () => step(-1));
+  navNext.addEventListener('click', () => step(1));
 
   // A gallery scrolls sideways; let a plain vertical wheel do that too.
   modalMedia.addEventListener('wheel', e => {
-    if (!modalMedia.classList.contains('modal-media--stack') || Math.abs(e.deltaX) > Math.abs(e.deltaY)) return;
+    if (!isStack() || Math.abs(e.deltaX) > Math.abs(e.deltaY)) return;
     modalMedia.scrollLeft += e.deltaY;
     e.preventDefault();
   }, { passive: false });
+
+  // On a phone, a sideways swipe on the visual moves between posts.
+  let touchX = 0, touchY = 0;
+  modalMedia.addEventListener('touchstart', e => {
+    touchX = e.touches[0].clientX;
+    touchY = e.touches[0].clientY;
+  }, { passive: true });
+  modalMedia.addEventListener('touchend', e => {
+    if (isStack()) return;
+    const dx = e.changedTouches[0].clientX - touchX;
+    const dy = e.changedTouches[0].clientY - touchY;
+    if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) * 1.5) step(dx < 0 ? 1 : -1);
+  });
 
   modal.querySelectorAll('[data-modal-close]').forEach(el => {
     el.addEventListener('click', closeModal);
   });
 
+  // The note, in the on-demand layout.
+  function toggleNote(open = !modal.classList.contains('note-open')) {
+    modal.classList.toggle('note-open', open);
+    modalInfo.setAttribute('aria-expanded', String(open));
+  }
+  modalInfo.addEventListener('click', () => toggleNote());
+
+  // Where the details sit. Temporary switcher while choosing; the pick is
+  // remembered on this browser.
+  const LAYOUTS = ['caption', 'bar', 'overlay'];
+  function setLayout(name: string) {
+    modal.dataset.layout = name;
+    modal.querySelectorAll<HTMLElement>('.modal-layouts button').forEach(b =>
+      b.setAttribute('aria-pressed', String(b.dataset.layout === name)));
+    try { localStorage.setItem('allai-modal-layout', name); } catch {}
+    toggleNote(false);
+    fitMedia();
+  }
+  let savedLayout: string | null = null;
+  try { savedLayout = localStorage.getItem('allai-modal-layout'); } catch {}
+  setLayout(savedLayout && LAYOUTS.includes(savedLayout) ? savedLayout : 'caption');
+  modal.querySelectorAll<HTMLElement>('.modal-layouts button').forEach(b =>
+    b.addEventListener('click', () => setLayout(b.dataset.layout!)));
+
+  // On demand: everything but the visual fades once the mouse rests.
+  let idleTimer = 0;
+  function wake() {
+    modal.classList.remove('is-idle');
+    clearTimeout(idleTimer);
+    idleTimer = window.setTimeout(() => {
+      if (!modal.hidden && !narrow.matches && modal.dataset.layout === 'overlay' && !modal.classList.contains('note-open')) {
+        modal.classList.add('is-idle');
+      }
+    }, 2500);
+  }
+  modal.addEventListener('mousemove', wake);
+
+  addEventListener('resize', () => { if (!modal.hidden) fitMedia(); });
+
   document.addEventListener('keydown', e => {
-    if (e.key === 'Escape' && !modal.hidden) closeModal();
+    if (modal.hidden || e.metaKey || e.ctrlKey || e.altKey) return;
+    if (e.key === 'Escape') closeModal();
+    else if (e.key === 'ArrowRight') { e.preventDefault(); step(1); }
+    else if (e.key === 'ArrowLeft') { e.preventDefault(); step(-1); }
+    else if (e.key === 'i' || e.key === 'I') toggleNote();
+    else if (e.key >= '1' && e.key <= '3') setLayout(LAYOUTS[Number(e.key) - 1]);
+    wake();
   });
 
   // ---- Filters ------------------------------------------------------------
