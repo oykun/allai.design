@@ -117,7 +117,7 @@ const styles = getUniqueMulti(items, 'style');
       <p class="modal-note"></p>
       <div class="modal-actions">
         <span class="modal-tags"></span>
-        <button type="button" class="modal-info" aria-expanded="false">Note</button>
+        <button type="button" class="modal-info" aria-expanded="false">Info</button>
         <a class="modal-source" target="_blank" rel="noopener noreferrer">View source ↗</a>
         <button type="button" class="modal-close" data-modal-close>Close</button>
       </div>
@@ -668,6 +668,7 @@ body {
     modalNote.textContent = d.note || '';
     modalNote.title = d.note || '';
     modalInfo.hidden = !d.note;
+    modal.classList.toggle('no-note', !d.note);
     modalSource.hidden = !d.sourceUrl;
     if (d.sourceUrl) modalSource.href = d.sourceUrl;
 
@@ -771,7 +772,7 @@ body {
 
   function finishClose() {
     modal.hidden = true;
-    modal.classList.remove('note-open', 'is-idle');
+    modal.classList.remove('info-open', 'is-idle');
     modalInfo.setAttribute('aria-expanded', 'false');
     modalMedia.innerHTML = ''; // stops any playing video
     modalMedia.classList.remove('modal-media--tall', 'modal-media--stack');
@@ -832,12 +833,12 @@ body {
     el.addEventListener('click', closeModal);
   });
 
-  // The note, opened from the pill or with the i key.
-  function toggleNote(open = !modal.classList.contains('note-open')) {
-    modal.classList.toggle('note-open', open);
+  // Title, source and date over the note: the Info button or the i key.
+  function toggleInfo(open = !modal.classList.contains('info-open')) {
+    modal.classList.toggle('info-open', open);
     modalInfo.setAttribute('aria-expanded', String(open));
   }
-  modalInfo.addEventListener('click', () => toggleNote());
+  modalInfo.addEventListener('click', () => toggleInfo());
 
   // Everything but the visual fades soon after the mouse rests.
   const IDLE_MS = 1200;
@@ -846,7 +847,7 @@ body {
     modal.classList.remove('is-idle');
     clearTimeout(idleTimer);
     idleTimer = window.setTimeout(() => {
-      if (!modal.hidden && !narrow.matches && !modal.classList.contains('note-open')) {
+      if (!modal.hidden && !narrow.matches && !modal.classList.contains('info-open')) {
         modal.classList.add('is-idle');
       }
     }, IDLE_MS);
@@ -860,7 +861,7 @@ body {
     if (e.key === 'Escape') closeModal();
     else if (e.key === 'ArrowRight') { e.preventDefault(); step(1); }
     else if (e.key === 'ArrowLeft') { e.preventDefault(); step(-1); }
-    else if (e.key === 'i' || e.key === 'I') toggleNote();
+    else if (e.key === 'i' || e.key === 'I') toggleInfo();
     wake();
   });
 

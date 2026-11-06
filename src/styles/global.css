@@ -513,9 +513,9 @@ img {
   font-weight: 500;
 }
 
-/* The details: one small pill at the bottom with the title, and the note
-   opens above it (Note button or the i key). Everything but the visual fades
-   out when the mouse rests. */
+/* The details: Oykun's note at the bottom, the title, source and date above
+   it on demand (Info button or the i key); a post with no note shows its
+   title instead. Everything but the visual fades out when the mouse rests. */
 .modal .modal-details {
   left: 50%;
   bottom: 20px;
@@ -537,7 +537,8 @@ img {
 }
 
 .modal .modal-head {
-  order: 1;
+  order: 0;
+  display: none;
   max-width: 100%;
   padding: 6px 14px;
   border-radius: 999px;
@@ -546,20 +547,21 @@ img {
   text-overflow: ellipsis;
 }
 
+.modal.info-open .modal-head,
+.modal.no-note .modal-head { display: block; }
+
+.modal .modal-note {
+  order: 1;
+  max-width: 520px;
+  padding: 8px 16px;
+  border-radius: 18px;
+  text-align: center;
+}
+
 .modal .modal-actions { order: 2; }
 .modal .modal-tags { display: none; }
 
-.modal .modal-note {
-  order: 0;
-  display: none;
-  max-width: 520px;
-  padding: 12px 16px;
-  border-radius: 16px;
-  text-align: left;
-}
-
-.modal.note-open .modal-note:not(:empty) { display: block; }
-.modal.note-open .modal-info { background: var(--text-primary); color: #fff; }
+.modal.info-open .modal-info { background: var(--text-primary); color: #fff; }
 
 /* Only with a mouse to bring it back: a phone has nothing to wake it. */
 @media (hover: hover) and (min-width: 721px) {
