@@ -1,5 +1,37 @@
 [
   {
+    "id": "42a89c83108b",
+    "title": "Home",
+    "source": "x.com",
+    "category": "Illustration",
+    "style": [
+      "Colourful",
+      "Animation",
+      "Gradient",
+      "Generative"
+    ],
+    "sourceUrl": "https://x.com/home",
+    "imageUrl": "https://pub-d7686b7c26dd403187af8d3e6340fc6c.r2.dev/items/42a89c83108b/home.jpg",
+    "videoUrl": "",
+    "curationNote": "love this webgl-esk effect and gaadients in the cards",
+    "publishedDate": "2026-11-19"
+  },
+  {
+    "id": "2bf57b28d569",
+    "title": "touch grass, meet people, hang out",
+    "source": "@ayushsoni_io",
+    "category": "Brand Design",
+    "style": [
+      "Colourful",
+      "Animation"
+    ],
+    "sourceUrl": "https://x.com/ayushsoni_io/status/2123407426636619872",
+    "imageUrl": "https://pub-d7686b7c26dd403187af8d3e6340fc6c.r2.dev/items/2bf57b28d569/touch-grass-meet-people-hang-out.jpg",
+    "videoUrl": "https://pub-d7686b7c26dd403187af8d3e6340fc6c.r2.dev/items/2bf57b28d569/touch-grass-meet-people-hang-out.mp4",
+    "curationNote": "the layouts, the vintage look, the colours... love it.",
+    "publishedDate": "2026-11-19"
+  },
+  {
     "id": "252e14b8499b",
     "title": "Hoy · drop anything, to anyone",
     "source": "gethoy.app",
