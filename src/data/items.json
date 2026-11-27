@@ -134,23 +134,6 @@
     "publishedDate": "2026-11-20"
   },
   {
-    "id": "42a89c83108b",
-    "title": "Home",
-    "source": "x.com",
-    "category": "Illustration",
-    "style": [
-      "Colourful",
-      "Animation",
-      "Gradient",
-      "Generative"
-    ],
-    "sourceUrl": "https://x.com/home",
-    "imageUrl": "https://pub-d7686b7c26dd403187af8d3e6340fc6c.r2.dev/items/42a89c83108b/home.jpg",
-    "videoUrl": "",
-    "curationNote": "love this webgl-esk effect and gaadients in the cards",
-    "publishedDate": "2026-11-19"
-  },
-  {
     "id": "2bf57b28d569",
     "title": "touch grass, meet people, hang out",
     "source": "@ayushsoni_io",
